@@ -20,7 +20,7 @@
  */
 
 // Selector for all the related dataset compound fields
-var relatedDatasetsSelector = "div#metadata_relatedDatasetV2 ~ div.dataset-field-values div.edit-compound-field";
+var relatedDatasetsSelector = "div:has(div#metadata_relatedDatasetV2) ~ div.dataset-field-values div.edit-compound-field";
 
 /* The browser will run this code the first time the editor is opened and each time a multiple field instance is 
  * added or removed. This code is reposible for creating the HTML for the dialog box, adding a search button to 
