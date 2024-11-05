@@ -78,7 +78,7 @@ $(document).ready(function() {
     if (!element.classList.contains('search_added')) {
       element.classList.add('search_added');
       // Second child is element that encapsulates label and input of dataset ID
-      let datasetIdField = element.children[0];
+      let datasetIdField = element.children[1];
       // Input field within
       let datasetIdInput = datasetIdField.querySelector('input');
       // We create a bootstrap input group ...
@@ -88,7 +88,7 @@ $(document).ready(function() {
       // ... with search button ...
       wrapper.innerHTML = 
         '<button class="btn btn-default btn-sm bootstrap-button-tooltip compound-field-btn" type="button" title="Search for dataset" ' +
-          'data-toggle="modal" data-target="#author-"modal" data-covoc-element-id="' + datasetIdInput.id + '">' +
+          'data-toggle="modal" data-target="#related-dataset-id-"modal" data-covoc-element-id="' + datasetIdInput.id + '">' +
           '<span class="glyphicon glyphicon-search no-text"></span>'
         '</button>';
       // ... and the input field ...
