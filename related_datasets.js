@@ -13,7 +13,7 @@
  * related-dataset-id-modal: the modal for the dialog box
  * related-dataset-id-modal-title: the dialog box title
  * author-search-box: field in the dialog where search term can be entered
- * author-search-results: location where the query results will be displayed
+ * related-dataset-id-search-results: location where the query results will be displayed
  * DOM Classes
  * ***********
 * search_added: class added when a search button has already been added
@@ -38,12 +38,12 @@ $(document).ready(function() {
           '<div class="modal-content">' + 
             '<div class="modal-header">' + 
               '<button class="close" type="button" data-dismiss="modal" aria-label="close"><span aria-label="Close">X</span></button>' + 
-              '<h5 id="related-dataset-id-modal-title" class="modal-title">Search for Author</h5>' + 
+              '<h5 id="related-dataset-id-modal-title" class="modal-title">Search for Dataset</h5>' + 
             '</div>' + 
             '<div class="modal-body">' + 
               '<input id="author-search-box" class="form-control" accesskey="s" type="text">' + 
               '</div>' +
-              '<table id="author-search-results" class="table"><tbody/></table>' + 
+              '<table id="related-dataset-id-search-results" class="table"><tbody/></table>' + 
             '</div>' + 
           '</div>' + 
         '</div>' + 
@@ -71,7 +71,7 @@ $(document).ready(function() {
     });
   }
 
-  // Put a search button after each author name field
+  // Put a search button after each dataset ID field
   // Iterate over compound elements
   document.querySelectorAll(relatedDatasetsSelector).forEach(element => {
     // 'search_added' class marks elements that have already been processed
@@ -92,7 +92,7 @@ $(document).ready(function() {
           '<span class="glyphicon glyphicon-search no-text"></span>'
         '</button>';
       // ... and the input field ...
-      wrapper.prependChild(datasetIdField.querySelector('input'));
+      wrapper.prepend(datasetIdInput);
       // ... and add that to the encapsulating element.
       datasetIdField.appendChild(wrapper);
     }
@@ -111,28 +111,28 @@ function authorsQuery(str) {
   if (!start) {
     start = 0;
   }
-  // Vocabulary search REST call
-  fetch("/covoc/authors?q=" + str + '&from=' + start + '&per_page=' + page_size)
+  // Search for datasets using search API
+  fetch("/api/search?q=" + str + '&start=' + start + '&per_page=' + page_size + '&type=dataset')
   .then(response => response.json())
-  .then(data => {
-    let table = document.querySelector('#author-search-results tbody');
+  .then(res => {
+    let table = document.querySelector('#related-dataset-id-search-results tbody');
     // Clear table content
     table.innerHTML = ''
     // Iterate over results
-    data.docs.forEach((doc) => {
+    res.data.items.forEach((item) => {
       // Get ID of target input element
       let id = document.getElementById('author-search-box').getAttribute('data-covoc-element-id');
       // Add a table row for the doc
       table.innerHTML += 
-      '<tr title="' + doc.eMail + '">' +
-        '<td>' + doc.fullName + '</td>' +
+      '<tr title="' + doc.name + '">' +
+        '<td>' + doc.citation + '</td>' +
         '<td>' + 
-          ((doc.orcid) ? '<a href="https://orcid.org/' + doc.orcid + '" target="_blank">' + doc.orcid + '</a>' : '') + 
+          ((doc.global_id) ? '<a href="' + doc.url + '" target="_blank">' + doc.global_id + '</a>' : '') + 
         '</td>' + 
         '<td>' + 
           '<span ' + 
             'class="btn btn-default btn-xs glyphicon glyphicon-import pull-right" title="import" ' + 
-            'onclick="importAuthorData(\'' + id + '\', \'' + doc.fullName + '\', \'' + doc.affiliation + '\', \'' + (doc.orcid || '') + '\');">' + 
+            'onclick="importAuthorData(\'' + id + '\', \'' + doc.name + '\', \'' + doc.citation + '\', \'' + (doc.global_id || '') + '\');">' + 
           '</span>' + 
         '</td>' + 
       '</tr>';
