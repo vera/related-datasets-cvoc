@@ -1,5 +1,6 @@
 var relatedDatasetIdSelector = "span[data-cvoc-protocol='related-dataset-id']";
 var relatedDatasetRelationTypeSelector = "span[data-cvoc-protocol='related-dataset-relation-type']";
+var relatedDatasetsSelector = "tr#metadata_relatedDatasetV2 td";
 var rorInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
 var rorRetrievalUrl = "/api/search";
 var rorIdStem = "https://ror.org/";
@@ -8,26 +9,24 @@ var rorPrefix = "ror";
 var rorMaxLength = 31;
 
 $(document).ready(function() {
-    expandRors();
+    displayRelatedDatasets();
     updateRorInputs();
 });
 
 // This function handles display of related datasets on the dataset page
-function expandRors() {
-    // Handle display of related dataset IDs
+function displayRelatedDatasets() {
+    // Clear duplicate display of the field values
+    // (both datasetId and relationType are presented on the page twice, first as plain text, then inside a span)
+    // Here, we remove the first occurence
     $(relatedDatasetIdSelector).each(function() {
         var rorElement = this;
-        // If it hasn't already been processed
-        if (!$(rorElement).hasClass('expanded')) {
-            //Child field case - if non-managed display, the string before this is name (affiliation) and we need to remove the duplicate affiliation string
-            //This is true for Dataverse author field - may not be true elsewhere - tbd
+        if (!$(rorElement).hasClass('deduplicated')) {
             let prev = $(rorElement)[0].previousSibling;
             if(prev !== undefined) {
                 $(rorElement)[0].previousSibling.data = "";
             }
 
-            // Mark it as processed
-            $(rorElement).addClass('expanded');
+            $(rorElement).addClass('deduplicated');
 
             /*var id = rorElement.textContent;
             if (!id.startsWith(rorIdStem)) {
@@ -69,23 +68,42 @@ function expandRors() {
             }*/
         }
     });
-    
-    // Handle display of relation types
+
     $(relatedDatasetRelationTypeSelector).each(function() {
         var rorElement = this;
-        // If it hasn't already been processed
-        if (!$(rorElement).hasClass('expanded')) {
-            //Child field case - if non-managed display, the string before this is name (affiliation) and we need to remove the duplicate affiliation string
-            //This is true for Dataverse author field - may not be true elsewhere - tbd
+        if (!$(rorElement).hasClass('deduplicated')) {
             let prev = $(rorElement)[0].previousSibling;
             if(prev !== undefined) {
                 $(rorElement)[0].previousSibling.data = "";
             }
 
-            // Mark it as processed
-            $(rorElement).addClass('expanded');
+            $(rorElement).addClass('deduplicated');
         }
     });
+    
+    // The related datasets are inside the table cell as pairs of spans (consisting of dataset ID and relation type) separated by <br>s
+    // Convert this to a <ul><li>...</li>...</ul> structure instead
+    var td = document.querySelector(relatedDatasetsSelector);
+    var ul = document.createElement('ul');
+    var spans = td.querySelectorAll('span');
+    var spanGroups = {};
+    spans.forEach(span => {
+        var index = span.getAttribute('data-cvoc-index');
+        if (!spanGroups[index]) {
+            spanGroups[index] = [];
+        }
+        spanGroups[index].push(span);
+    });
+    Object.values(spanGroups).forEach(group => {
+        var li = document.createElement('li');
+        group.forEach(span => li.appendChild(span));
+        if (group.length === 2) {
+            li.insertBefore(document.createTextNode(' '), li.childNodes[1]);
+        }
+        ul.appendChild(li);
+    });
+    td.innerHTML = '';
+    td.appendChild(ul);
 }
 
 function getRorDisplayHtml(name, url, altNames, truncate=true, addParens=false) {
