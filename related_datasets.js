@@ -158,7 +158,7 @@ function updateRorInputs() {
                             term = "";
                         }
                         var query = {
-                            q: term,
+                            q: term.trim().replaceAll(' ', '* ') + '*',
                             type: 'dataset',
                         }
                         return query;
