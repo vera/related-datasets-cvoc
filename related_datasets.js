@@ -82,7 +82,7 @@ function displayRelatedDatasets() {
                 // Check for cached entry
                 let value = getValue(id);
                 if(value !=null) {
-                    $(rorElement).html(getRorDisplayHtml(value));
+                    $(rorElement).html(getRorDisplayHtml(value, id));
                 } else {
                     // Try it as a local dataset PID (could validate that it has the right form or can just let the GET fail)
                     $.ajax({
@@ -95,7 +95,7 @@ function displayRelatedDatasets() {
                         success: function(res) {
                             // Assume the first field in the citation block is the dataset title
                             var datasetTitle = res.data.latestVersion.metadataBlocks.citation.fields[0].value;
-                            $(rorElement).html(getRorDisplayHtml(datasetTitle));
+                            $(rorElement).html(getRorDisplayHtml(datasetTitle, datasetId));
                             //Store values in localStorage to avoid repeating calls
                             storeValue(id, datasetTitle);
                         },
@@ -113,15 +113,15 @@ function displayRelatedDatasets() {
     });
 }
 
-function getRorDisplayHtml(name) {
+function getRorDisplayHtml(name, id) {
     if (name.length >= rorMaxLength) {
         // show the first characters of a long name
         // return item.text.substring(0,25) + "…";
         name=name.substring(0,rorMaxLength) + "…";
     }
-    /*if(url != null) {
-      name =  name + '<a href="' + url + '" target="_blank" rel="nofollow" >' +'<img alt="ROR logo" src="https://raw.githubusercontent.com/ror-community/ror-logos/main/ror-icon-rgb.svg" height="20" class="ror"/></a>';
-    }*/
+    if (id != null && id.startsWith("perma:") { // TODO
+      name =  '<a href="/dataset.xhtml?persistentId=' + id + '" target="_blank" rel="nofollow" >'+ name +'</a>';
+    }
     return $('<span></span>').append(name);
 }
 
