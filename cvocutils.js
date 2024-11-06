@@ -27,33 +27,24 @@ function markMatch2(text, term) {
     return $result;
 }
 
-function storeValue(prefix, id, value) {
+function storeValue(id, value) {
     try {
-        if(localStorage.getItem(prefix + id)==null) {
+        if(localStorage.getItem(id)==null) {
             // Store the most recent 1000 values across all scripts
             //ToDo: Use IndexedDB to manage storage for each script separately and avoid impacting other tools using localStorage
             if (localStorage.length > 1000) {
                 localStorage.removeItem(localStorage.key(0));
             }
-            localStorage.setItem(prefix + id, value);
+            localStorage.setItem(id, value);
         }
     } catch (e) {
         console.log("Problem using localStorage: " + e);
     }
 }
 
-function getValue(prefix, id) {
+function getValue(id) {
     try {
-        let altNames='';
-        let name = localStorage.getItem(prefix + id);
-        if(name !== null) {
-            let pos = name.indexOf('#');
-            if(pos > 0) {
-                altNames=name.substring(pos+1).split(',');
-                name=name.substring(0, pos);
-            }
-        }
-        return {name, altNames};
+        return localStorage.getItem(id);
     } catch (e) {
         console.log("Problem getting value from localStorage: " + e);
     }

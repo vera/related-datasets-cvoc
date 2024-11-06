@@ -2,7 +2,8 @@ var relatedDatasetIdSelector = "span[data-cvoc-protocol='related-dataset-id']";
 var relatedDatasetRelationTypeSelector = "span[data-cvoc-protocol='related-dataset-relation-type']";
 var relatedDatasetsSelector = "tr#metadata_relatedDatasetV2 td";
 var rorInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
-var rorRetrievalUrl = "/api/search";
+var datasetAutocompleteUrl = "/api/search";
+var datasetRetrievalUrl = "/api/datasets/:persistentId";
 var rorIdStem = "https://ror.org/";
 var rorPrefix = "ror";
 
@@ -26,36 +27,49 @@ function displayRelatedDatasets() {
             if(prev !== undefined) {
                 $(rorElement)[0].previousSibling.data = "";
             }
-
             $(rorElement).addClass('deduplicated');
+        }
+    });
+    $(relatedDatasetRelationTypeSelector).each(function() {
+        var rorElement = this;
+        if (!$(rorElement).hasClass('deduplicated')) {
+            let prev = $(rorElement)[0].previousSibling;
+            if(prev !== undefined) {
+                $(rorElement)[0].previousSibling.data = "";
+            }
+            $(rorElement).addClass('deduplicated');
+        }
+    });
+    
+    // TODO replace dataset ID with title
+    $(relatedDatasetIdSelector).each(function() {
+        var rorElement = this;
+        if (!$(rorElement).hasClass('expanded')) {
+            $(rorElement).addClass('expanded');
 
-            /*var id = rorElement.textContent;
-            if (!id.startsWith(rorIdStem)) {
-                $(rorElement).html(getRorDisplayHtml(id, null, ['No ROR Entry'], false, true));
+            var id = rorElement.textContent;
+            if (!id.startsWith("perma:")) { // TODO or other protocols
+                $(rorElement).html(getRorDisplayHtml(id));
             } else {
-                //Remove the URL prefix - "https://ror.org/".length = 16
-                id = id.substring(rorIdStem.length);
                 //Check for cached entry
-                let value = getValue(rorPrefix, id);
-                if(value.name !=null) {
-                    $(rorElement).html(getRorDisplayHtml(value.name, rorIdStem + id, value.altNames, false, true));
+                let value = getValue(id);
+                if(value !=null) {
+                    $(rorElement).html(getRorDisplayHtml(value));
                 } else {
-                    // Try it as an ROR entry (could validate that it has the right form or can just let the GET fail)
+                    // Try it as a local dataset PID (could validate that it has the right form or can just let the GET fail)
                     $.ajax({
                         type: "GET",
-                        url: rorRetrievalUrl + "/" + id,
+                        url: datasetRetrievalUrl + "?persistentId=" + id,
                         dataType: 'json',
                         headers: {
                             'Accept': 'application/json',
                         },
-                        success: function(ror, status) {
-                            // If found, construct the HTML for display
-                            var name = ror.name;
-                            var altNames= ror.acronyms;
-
-                            $(rorElement).html(getRorDisplayHtml(name, rorIdStem + id, altNames, false, true));
-                            //Store values in localStorage to avoid repeating calls to CrossRef
-                            storeValue(rorPrefix, id, name + "#" + altNames);
+                        success: function(res) {
+                            // Assume the first field in the citation block is the dataset title
+                            var datasetTitle = res.data.latestVersion.metadataBlocks.citation.fields[0].value);
+                            $(rorElement).html(getRorDisplayHtml(datasetTitle);
+                            //Store values in localStorage to avoid repeating calls
+                            storeValue(id, datasetTitle);
                         },
                         failure: function(jqXHR, textStatus, errorThrown) {
                             // Generic logging - don't need to do anything if 404 (leave
@@ -66,19 +80,7 @@ function displayRelatedDatasets() {
                         }
                     });
                 }
-            }*/
-        }
-    });
-
-    $(relatedDatasetRelationTypeSelector).each(function() {
-        var rorElement = this;
-        if (!$(rorElement).hasClass('deduplicated')) {
-            let prev = $(rorElement)[0].previousSibling;
-            if(prev !== undefined) {
-                $(rorElement)[0].previousSibling.data = "";
             }
-
-            $(rorElement).addClass('deduplicated');
         }
     });
     
@@ -107,23 +109,16 @@ function displayRelatedDatasets() {
     td.appendChild(ul);
 }
 
-function getRorDisplayHtml(name, url, altNames, truncate=true, addParens=false) {
-    if(typeof(altNames) == 'undefined') {
-        altNames=[];
-    }
-    if (truncate && (name.length >= rorMaxLength)) {
+function getRorDisplayHtml(name) {
+    if (name.length >= rorMaxLength) {
         // show the first characters of a long name
         // return item.text.substring(0,25) + "…";
-        altNames.unshift(name);
         name=name.substring(0,rorMaxLength) + "…";
     }
-    if(url != null) {
+    /*if(url != null) {
       name =  name + '<a href="' + url + '" target="_blank" rel="nofollow" >' +'<img alt="ROR logo" src="https://raw.githubusercontent.com/ror-community/ror-logos/main/ror-icon-rgb.svg" height="20" class="ror"/></a>';
-    }
-    if(addParens) {
-        name = ' (' + name + ')';
-    }
-    return $('<span></span>').append(name).attr("title", altNames);
+    }*/
+    return $('<span></span>').append(name);
 }
 
 function updateRorInputs() {
@@ -172,9 +167,9 @@ function updateRorInputs() {
                             altNames = idnum.substr(pos+2).split(',');
                             idnum=idnum.substr(0,pos);
                         }
-                        return getRorDisplayHtml(name, rorIdStem + idnum, altNames);
+                        return getRorDisplayHtml(name);
                     }
-                    return getRorDisplayHtml(name, null, ['No ROR Entry']);
+                    return getRorDisplayHtml(name);
                 },
                 language: {
                     searching: function(params) {
@@ -187,7 +182,7 @@ function updateRorInputs() {
                 allowClear: true,
                 ajax: {
                     // Use an ajax call to ROR to retrieve matching results
-                    url: rorRetrievalUrl,
+                    url: datasetAutocompleteUrl,
                     data: function(params) {
                         term = params.term;
                         if (!term) {
@@ -213,7 +208,7 @@ function updateRorInputs() {
                                     function(x) {
                                         return {
                                             text: x.citation,
-                                            id: x.url
+                                            id: x.global_id
                                         }
                                     })
                         };
