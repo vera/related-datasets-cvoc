@@ -143,7 +143,7 @@ function updateRorInputs() {
                 language: {
                     searching: function(params) {
                         // Change this to be appropriate for your application
-                        return 'Search for dataset…';
+                        return 'Searching for dataset…';
                     }
                 },
                 placeholder: rorInput.hasAttribute("data-cvoc-placeholder") ? $(rorInput).attr('data-cvoc-placeholder') : "Select a related dataset…",
@@ -176,8 +176,8 @@ function updateRorInputs() {
                                 .map(
                                     function(x) {
                                         return {
-                                            text: x.name +" ("+ x.url +")",
-                                            id: x.global_id
+                                            text: x.citation,
+                                            id: x.url
                                         }
                                     })
                         };
