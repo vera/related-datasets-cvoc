@@ -44,7 +44,9 @@ function displayRelatedDatasets() {
     // The related datasets are inside the table cell as pairs of spans (consisting of dataset ID and relation type) separated by <br>s
     // Convert this to a <ul><li>...</li>...</ul> structure instead
     var td = document.querySelector(relatedDatasetsSelector);
-    if(td != null) {
+    if(td != null && !$(td).hasClass('converted-to-list')) {
+        $(td).addClass('converted-to-list');
+
         var ul = document.createElement('ul');
         var spans = td.querySelectorAll('span');
         var spanGroups = {};
