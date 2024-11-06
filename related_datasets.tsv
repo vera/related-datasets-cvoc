@@ -1,0 +1,40 @@
+#metadataBlock	name	dataverseAlias	displayName	blockURI
+	relatedDatasetsV2		Improved related datasets (prototype)	
+#datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI	
+	relatedDatasetV2	Related datasets			none	0		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		relatedDatasetsV2	
+	relatedDatasetRelationType	Relationship between this dataset and the related dataset			text	1		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	relatedDatasetV2	relatedDatasetsV2	
+	relatedDatasetIdentifier	Identifier of the related dataset			text	2		TRUE	FALSE	FALSE	FALSE	TRUE	TRUE	relatedDatasetV2	relatedDatasetsV2	
+#controlledVocabulary	DatasetField	Value	identifier	displayOrder
+	relatedDatasetRelationType	is cited by	RDRT0	0
+	relatedDatasetRelationType	cites	RDRT1	1
+	relatedDatasetRelationType	is supplement to	RDRT2	2
+	relatedDatasetRelationType	is supplemented by	RDRT3	3
+	relatedDatasetRelationType	is continued by	RDRT4	4
+	relatedDatasetRelationType	continues	RDRT5	5
+	relatedDatasetRelationType	is described by	RDRT6	6
+	relatedDatasetRelationType	describes	RDRT7	7
+	relatedDatasetRelationType	has metadatB	RDRT8	8
+	relatedDatasetRelationType	is metadatfor	RDRT9	9
+	relatedDatasetRelationType	has version	RDRT10	10
+	relatedDatasetRelationType	is version of	RDRT11	11
+	relatedDatasetRelationType	is new version of	RDRT12	12
+	relatedDatasetRelationType	is previous version of	RDRT13	13
+	relatedDatasetRelationType	is part of	RDRT14	14
+	relatedDatasetRelationType	has part	RDRT15	15
+	relatedDatasetRelationType	is referenced by	RDRT16	16
+	relatedDatasetRelationType	references	RDRT17	17
+	relatedDatasetRelationType	is documented by	RDRT18	18
+	relatedDatasetRelationType	documents	RDRT19	19
+	relatedDatasetRelationType	is compiled by	RDRT20	20
+	relatedDatasetRelationType	compiles	RDRT21	21
+	relatedDatasetRelationType	is variant form of	RDRT22	22
+	relatedDatasetRelationType	is original form of	RDRT23	23
+	relatedDatasetRelationType	is identical to	RDRT24	24
+	relatedDatasetRelationType	is reviewed by	RDRT25	25
+	relatedDatasetRelationType	reviews	RDRT26	26
+	relatedDatasetRelationType	is derived from	RDRT27	27
+	relatedDatasetRelationType	is source of	RDRT28	28
+	relatedDatasetRelationType	is required by	RDRT29	29
+	relatedDatasetRelationType	requires	RDRT30	30
+	relatedDatasetRelationType	is obsoleted by	RDRT31	31
+	relatedDatasetRelationType	obsoletes	RDRT32	32

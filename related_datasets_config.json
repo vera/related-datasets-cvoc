@@ -1,0 +1,14 @@
+[
+  {
+    "field-name": "relatedDatasetIdentifier",
+    "term-uri-field": "relatedDatasetIdentifier",
+    "js-url": ["http://veraclemens.org/related-datasets-cvoc/related_datasets.js", "http://veraclemens.org/related-datasets-cvoc/cvocutils.js"],
+    "protocol": "related-dataset-id",
+    "retrieval-uri": "",
+    "allow-free-text": true,
+    "languages": "",
+    "vocabs": {},
+    "managed-fields": {},
+    "retrieval-filtering": {}
+  }
+]
