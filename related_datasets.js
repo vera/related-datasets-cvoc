@@ -66,8 +66,8 @@ function displayRelatedDatasets() {
                         },
                         success: function(res) {
                             // Assume the first field in the citation block is the dataset title
-                            var datasetTitle = res.data.latestVersion.metadataBlocks.citation.fields[0].value);
-                            $(rorElement).html(getRorDisplayHtml(datasetTitle);
+                            var datasetTitle = res.data.latestVersion.metadataBlocks.citation.fields[0].value;
+                            $(rorElement).html(getRorDisplayHtml(datasetTitle));
                             //Store values in localStorage to avoid repeating calls
                             storeValue(id, datasetTitle);
                         },
