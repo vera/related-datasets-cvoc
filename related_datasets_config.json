@@ -10,5 +10,17 @@
     "vocabs": {},
     "managed-fields": {},
     "retrieval-filtering": {}
+  },
+  {
+    "field-name": "relatedDatasetRelationType",
+    "term-uri-field": "relatedDatasetRelationType",
+    "js-url": [],
+    "protocol": "related-dataset-relation-type",
+    "retrieval-uri": "",
+    "allow-free-text": false,
+    "languages": "",
+    "vocabs": {},
+    "managed-fields": {},
+    "retrieval-filtering": {}
   }
 ]

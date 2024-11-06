@@ -1,4 +1,5 @@
-var rorSelector = "span[data-cvoc-protocol='related-dataset-id']";
+var relatedDatasetIdSelector = "span[data-cvoc-protocol='related-dataset-id']";
+var relatedDatasetRelationTypeSelector = "span[data-cvoc-protocol='related-dataset-relation-type']";
 var rorInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
 var rorRetrievalUrl = "/api/search";
 var rorIdStem = "https://ror.org/";
@@ -13,25 +14,22 @@ $(document).ready(function() {
 
 // This function handles display of related datasets on the dataset page
 function expandRors() {
-    // Check each selected element
-    $(rorSelector).each(function() {
+    // Handle display of related dataset IDs
+    $(relatedDatasetIdSelector).each(function() {
         var rorElement = this;
         // If it hasn't already been processed
-        /*if (!$(rorElement).hasClass('expanded')) {
+        if (!$(rorElement).hasClass('expanded')) {
             //Child field case - if non-managed display, the string before this is name (affiliation) and we need to remove the duplicate affiliation string
             //This is true for Dataverse author field - may not be true elsewhere - tbd
             let prev = $(rorElement)[0].previousSibling;
             if(prev !== undefined) {
-                let val = $(rorElement)[0].previousSibling.nodeValue;
-                if(val !== null) {
-                    $(rorElement)[0].previousSibling.data = val.substring(0,val.indexOf('('));
-                }
+                $(rorElement)[0].previousSibling.data = "";
             }
 
             // Mark it as processed
             $(rorElement).addClass('expanded');
 
-            var id = rorElement.textContent;
+            /*var id = rorElement.textContent;
             if (!id.startsWith(rorIdStem)) {
                 $(rorElement).html(getRorDisplayHtml(id, null, ['No ROR Entry'], false, true));
             } else {
@@ -68,8 +66,25 @@ function expandRors() {
                         }
                     });
                 }
+            }*/
+        }
+    });
+    
+    // Handle display of relation types
+    $(relatedDatasetRelationTypeSelector).each(function() {
+        var rorElement = this;
+        // If it hasn't already been processed
+        if (!$(rorElement).hasClass('expanded')) {
+            //Child field case - if non-managed display, the string before this is name (affiliation) and we need to remove the duplicate affiliation string
+            //This is true for Dataverse author field - may not be true elsewhere - tbd
+            let prev = $(rorElement)[0].previousSibling;
+            if(prev !== undefined) {
+                $(rorElement)[0].previousSibling.data = "";
             }
-        }*/
+
+            // Mark it as processed
+            $(rorElement).addClass('expanded');
+        }
     });
 }
 
