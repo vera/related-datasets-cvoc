@@ -5,6 +5,7 @@ var rorInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
 var rorRetrievalUrl = "/api/search";
 var rorIdStem = "https://ror.org/";
 var rorPrefix = "ror";
+
 //Max chars that displays well for a child field
 var rorMaxLength = 31;
 
