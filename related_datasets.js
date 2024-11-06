@@ -119,7 +119,7 @@ function getRorDisplayHtml(name, id) {
         // return item.text.substring(0,25) + "…";
         name=name.substring(0,rorMaxLength) + "…";
     }
-    if (id != null && id.startsWith("perma:") { // TODO
+    if (id != null) {
       name =  '<a href="/dataset.xhtml?persistentId=' + id + '" target="_blank" rel="nofollow" >'+ name +'</a>';
     }
     return $('<span></span>').append(name);
