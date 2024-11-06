@@ -172,14 +172,7 @@ function updateRorInputs() {
                         //console.log(data);
                         //console.log("Data dump END");
                         return {
-                            results: data['items']
-                                // Sort the list
-                                // Prioritize active orgs
-                                .sort((a, b) => Number(b.status === 'active') - Number(a.status === 'active'))
-                                // Prioritize those with this acronym
-                                .sort((a, b) => Number(b.acronyms.includes(params.term)) - Number(a.acronyms.includes(params.term)))
-                                // Prioritize previously used entries
-                                .sort((a, b) => Number(getValue(rorPrefix, b['id'].replace(rorIdStem,'')).name != null) - Number(getValue(rorPrefix, a['id'].replace(rorIdStem,'')).name != null))
+                            results: data['data']['items']
                                 .map(
                                     function(x) {
                                         return {
