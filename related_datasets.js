@@ -1,178 +1,269 @@
-/************************************************************************************************************
- * JavaScript that implements autocomplete for related datasets within the current Dataverse instance.
- *
- * Based on authors.js by Kris Dekeyser
- * https://github.com/gdcc/dataverse-external-vocab-support/blob/5ec9a0acd431dd1096206554fba1453122fc6e12/scripts/authors.js
- *
- * ******************************************************************************************************** *
- * Author: Vera Clemens (2024). MIT License                                                    *
- ************************************************************************************************************/
+console.log("related_datasets.js..");
+var rorSelector = "span[data-cvoc-protocol='related-dataset-id']";
+var rorInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
+var rorRetrievalUrl = "https://api.ror.org/organizations";
+var rorIdStem = "https://ror.org/";
+var rorPrefix = "ror";
+//Max chars that displays well for a child field
+var rorMaxLength = 31;
 
-/* DOM Element Identfiers
- * **********************
- * related-dataset-id-modal: the modal for the dialog box
- * related-dataset-id-modal-title: the dialog box title
- * related-dataset-id-search-box: field in the dialog where search term can be entered
- * related-dataset-id-search-results: location where the query results will be displayed
- * DOM Classes
- * ***********
-* search_added: class added when a search button has already been added
- */
-
-// Selector for all the related dataset compound fields
-var relatedDatasetsSelector = "div:has(div#metadata_relatedDatasetV2) ~ div.dataset-field-values div.edit-compound-field";
-
-/* The browser will run this code the first time the editor is opened and each time a multiple field instance is 
- * added or removed. This code is reposible for creating the HTML for the dialog box, adding a search button to 
- * the author name fields and creating the triggers for initializing the dialog box and the search action itself.
- */
 $(document).ready(function() {
-  let relatedDatasetIdModal = document.getElementById('related-dataset-id-modal');
-  if (!relatedDatasetIdModal) {
-    // Create modal dialog
-    let dialog = document.createElement('div');
-    document.body.appendChild(dialog);
-    dialog.outerHTML =
-      '<div id="related-dataset-id-modal" class="modal fade in" tabindex="-1" aria-labelledby="related-dataset-id-modal-title" role="dialog" style="margin-top: 5rem;">' + 
-        '<div class="modal-dialog" role="document">' + 
-          '<div class="modal-content">' + 
-            '<div class="modal-header">' + 
-              '<button class="close" type="button" data-dismiss="modal" aria-label="close"><span aria-label="Close">X</span></button>' + 
-              '<h5 id="related-dataset-id-modal-title" class="modal-title">Search for Dataset</h5>' + 
-            '</div>' + 
-            '<div class="modal-body">' + 
-              '<input id="related-dataset-id-search-box" class="form-control" accesskey="s" type="text">' + 
-              '</div>' +
-              '<table id="related-dataset-id-search-results" class="table"><tbody/></table>' + 
-            '</div>' + 
-          '</div>' + 
-        '</div>' + 
-      '</div>';
-
-    // Before modal is opened, pull in the current value of the authorName input field into the search box and launch a query for that value
-    $('#related-dataset-id-modal').on('show.bs.modal', function(e) {
-      // Get the stored ID of the input field
-      let inputID = e.relatedTarget.getAttribute('data-covoc-element-id');
-      // Let the searchBox know where to write the data
-      authorSearchBox.setAttribute('data-covoc-element-id', inputID);
-    });
-
-    // To minimize the load on the lookup service, we opted for an explicit enter to launch a query
-    document.getElementById('related-dataset-id-search-box').addEventListener('input', function(e) {
-      // Get string from searchBox ...
-      let str = this.value;
-      // ... and launch query
-      datasetsQuery(this.value);
-    });
-  }
-
-  // Put a search button after each dataset ID field
-  // Iterate over compound elements
-  document.querySelectorAll(relatedDatasetsSelector).forEach(element => {
-    // 'search_added' class marks elements that have already been processed
-    if (!element.classList.contains('search_added')) {
-      element.classList.add('search_added');
-      // Second child is element that encapsulates label and input of dataset ID
-      let datasetIdField = element.children[1];
-      // Input field within
-      let datasetIdInput = datasetIdField.querySelector('input');
-      // We create a bootstrap input group ...
-      let wrapper = document.createElement('div');
-      wrapper.className = 'input-group';
-      wrapper.style.display = 'flex';
-      // ... with search button ...
-      wrapper.innerHTML = 
-        '<button class="btn btn-default btn-sm bootstrap-button-tooltip compound-field-btn" type="button" title="Search for dataset" ' +
-          'data-toggle="modal" data-target="#related-dataset-id-modal" data-covoc-element-id="' + datasetIdInput.id + '">' +
-          '<span class="glyphicon glyphicon-search no-text"></span>'
-        '</button>';
-      // ... and the input field ...
-      wrapper.prepend(datasetIdInput);
-      // ... and add that to the encapsulating element.
-      datasetIdField.appendChild(wrapper);
-    }
-  })
+    expandRors();
+    updateRorInputs();
 });
 
-var page_size = 10; // Number of results that will be displayed on a single page
+function expandRors() {
+    // Check each selected element
+    $(rorSelector).each(function() {
+        var rorElement = this;
+        // If it hasn't already been processed
+        if (!$(rorElement).hasClass('expanded')) {
+          //Child field case - if non-managed display, the string before this is name (affiliation) and we need to remove the duplicate affiliation string
+          //This is true for Dataverse author field - may not be true elsewhere - tbd
+          let prev = $(rorElement)[0].previousSibling;
+          if(prev !== undefined) {
+          let val = $(rorElement)[0].previousSibling.nodeValue;
+            if(val !== null) {
+              $(rorElement)[0].previousSibling.data = val.substring(0,val.indexOf('('));
+            }
+          }
+            // Mark it as processed
+            $(rorElement).addClass('expanded');
+            var id = rorElement.textContent;
+            if (!id.startsWith(rorIdStem)) {
+                $(rorElement).html(getRorDisplayHtml(id, null, ['No ROR Entry'], false, true));
+            } else {
+                //Remove the URL prefix - "https://ror.org/".length = 16
+                id = id.substring(rorIdStem.length);
+                //Check for cached entry
+                let value = getValue(rorPrefix, id);
+                if(value.name !=null) {
+                    $(rorElement).html(getRorDisplayHtml(value.name, rorIdStem + id, value.altNames, false, true));
+                } else {
+                    // Try it as an ROR entry (could validate that it has the right form or can just let the GET fail)
+                    $.ajax({
+                        type: "GET",
+                        url: rorRetrievalUrl + "/" + id,
+                        dataType: 'json',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                        success: function(ror, status) {
+                            // If found, construct the HTML for display
+                            var name = ror.name;
+                            var altNames= ror.acronyms;
 
-// Lauches a query to the external vocabulary server and fills in the results in the table element of the dialog searchBox
-
-/* arguments:
- *  - str (String): text to search for
- */
-
-function datasetsQuery(str) {
-  if (!start) {
-    start = 0;
-  }
-  // Search for datasets using search API
-  fetch("/api/search?q=" + str + '&start=' + start + '&per_page=' + page_size + '&type=dataset')
-  .then(response => response.json())
-  .then(res => {
-    let table = document.querySelector('#related-dataset-id-search-results tbody');
-    // Clear table content
-    table.innerHTML = ''
-    // Iterate over results
-    res.data.items.forEach((item) => {
-      // Get ID of target input element
-      let id = document.getElementById('related-dataset-id-search-box').getAttribute('data-covoc-element-id');
-      // Add a table row for the doc
-      table.innerHTML += 
-      '<tr title="' + doc.name + '">' +
-        '<td>' + doc.citation + '</td>' +
-        '<td>' + 
-          ((doc.global_id) ? '<a href="' + doc.url + '" target="_blank">' + doc.global_id + '</a>' : '') + 
-        '</td>' + 
-        '<td>' + 
-          '<span ' + 
-            'class="btn btn-default btn-xs glyphicon glyphicon-import pull-right" title="import" ' + 
-            'onclick="importAuthorData(\'' + id + '\', \'' + doc.name + '\', \'' + doc.citation + '\', \'' + (doc.global_id || '') + '\');">' + 
-          '</span>' + 
-        '</td>' + 
-      '</tr>';
+                            $(rorElement).html(getRorDisplayHtml(name, rorIdStem + id, altNames, false, true));
+                            //Store values in localStorage to avoid repeating calls to CrossRef
+                            storeValue(rorPrefix, id, name + "#" + altNames);
+                        },
+                        failure: function(jqXHR, textStatus, errorThrown) {
+                            // Generic logging - don't need to do anything if 404 (leave
+                            // display as is)
+                            if (jqXHR.status != 404) {
+                                console.error("The following error occurred: " + textStatus, errorThrown);
+                            }
+                        }
+                    });
+                }
+            }
+        }
     });
-  });
 }
 
-// Import the query result data into the metadata form
-// arguments:
-// - id (String): identifier of the authorName input field
-// - fullName, affiliation and orcid (String): author data
-function importAuthorData(id, fullName, affiliation, orcid) {
-  // Get the author name input field
-  let authorName = document.getElementById(id);
-  // Up to the compound element
-  let authorElement = authorName.closest('.search_added');
-  // 2nd child contains the input field for author affiliation
-  let authorAffiliation = authorElement.children[1].querySelector('input');
-  // 3rd child is the identifier scheme wrapper and contains multiple elements:
-  // - a label element that shows the current selected value
-  let authorIdentifierSchemeText = authorElement.children[2].querySelector('.ui-selectonemenu-label');
-  // - a select element that contains the drop-down
-  let authorIdentifierSchemeSelect = authorElement.children[2].querySelector('select');
-  // 4th child contains the input element for the identifier
-  let authorIdentifier = authorElement.children[3].querySelector('input');
-  // Fill-in name, affiliation and orcid identifier
-  authorName.value = fullName;
-  authorAffiliation.value = affiliation;
-  if (orcid) {
-    authorIdentifier.value = orcid;
-    // Setting the dropdown box is trickier:
-    // First get the option from the select list whose text content matches the value you want to set
-    let option = Array.from(authorIdentifierSchemeSelect.querySelectorAll('option')).find(el => el.text === 'ORCID');
-    // Then get the value from that option and set the select element's value with it
-    authorIdentifierSchemeSelect.value = option.getAttribute('value');
-    // But you should also set the label field or your selection will not display
-    authorIdentifierSchemeText.textContent = 'ORCID';
-  } else {
-    // clear the orcid input box and dropdown box
-    authorIdentifier.value = '';
-    // Default text is in the first option
-    authorIdentifierSchemeText.textContent = authorIdentifierSchemeSelect.children[0].text;
-    authorIdentifierSchemeSelect.value = '';
-  }
-  // Close the dialog box when the import is done
-  $('#related-dataset-id-modal').modal('hide');
+function getRorDisplayHtml(name, url, altNames, truncate=true, addParens=false) {
+    if(typeof(altNames) == 'undefined') {
+        altNames=[];
+    }
+    if (truncate && (name.length >= rorMaxLength)) {
+        // show the first characters of a long name
+        // return item.text.substring(0,25) + "…";
+        altNames.unshift(name);
+        name=name.substring(0,rorMaxLength) + "…";
+    }
+    if(url != null) {
+      name =  name + '<a href="' + url + '" target="_blank" rel="nofollow" >' +'<img alt="ROR logo" src="https://raw.githubusercontent.com/ror-community/ror-logos/main/ror-icon-rgb.svg" height="20" class="ror"/></a>';
+    }
+    if(addParens) {
+        name = ' (' + name + ')';
+    }
+    return $('<span></span>').append(name).attr("title", altNames);
 }
 
+function updateRorInputs() {
+    // For each input element within rorInputSelector elements
+    $(rorInputSelector).each(function() {
+        var rorInput = this;
+        if (!rorInput.hasAttribute('data-ror')) {
+            // Random identifier
+            let num = Math.floor(Math.random() * 100000000000);
+            // Hide the actual input and give it a data-ror number so we can
+            // find it
+            $(rorInput).hide();
+            $(rorInput).attr('data-ror', num);
+            // Todo: if not displayed, wait until it is to then create the
+            // select 2 with a non-zero width
+            // Add a select2 element to allow search and provide a list of
+            // choices
+            var selectId = "rorAddSelect_" + num;
+            $(rorInput).after(
+                '<select id=' + selectId + ' class="form-control add-resource select2" tabindex="0" >');
+            $("#" + selectId).select2({
+                theme: "classic",
+                tags: $(rorInput).attr('data-cvoc-allowfreetext'),
+                delay: 500,
+                templateResult: function(item) {
+                    // No need to template the searching text
+                    if (item.loading) {
+                        return item.text;
+                    }
+                    // markMatch bolds the search term if/where it appears in
+                    // the result
+                    var $result = markMatch2(item.text, term);
+                    return $result;
+                },
+                templateSelection: function(item) {
+                    // For a selection, format as in display mode
+                    //Find/remove the id number
+                    var name = item.text;
+                    var pos = item.text.search(/, [a-z0-9]{9}/);
+                    if (pos >= 0) {
+                        name = name.substr(0, pos);
+                        var idnum = item.text.substr(pos+2);
+                        var altNames=[];
+                        pos=idnum.indexOf(', ');
+                        if(pos>0) {
+                            altNames = idnum.substr(pos+2).split(',');
+                            idnum=idnum.substr(0,pos);
+                        }
+                        return getRorDisplayHtml(name, rorIdStem + idnum, altNames);
+                    }
+                    return getRorDisplayHtml(name, null, ['No ROR Entry']);
+                },
+                language: {
+                    searching: function(params) {
+                        // Change this to be appropriate for your application
+                        return 'Search by name or acronym…';
+                    }
+                },
+                placeholder: rorInput.hasAttribute("data-cvoc-placeholder") ? $(rorInput).attr('data-cvoc-placeholder') : "Select a research organization",
+                minimumInputLength: 3,
+                allowClear: true,
+                ajax: {
+                    // Use an ajax call to ROR to retrieve matching results
+                    url: rorRetrievalUrl,
+                    data: function(params) {
+                        term = params.term;
+                        if (!term) {
+                            term = "";
+                        }
+                        var query = {
+                            query: term,
+                        }
+                        return query;
+                    },
+                    // request json
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    processResults: function(data, params) {
+                        //console.log("Data dump BEGIN");
+                        //console.log(data);
+                        //console.log("Data dump END");
+                        return {
+                            results: data['items']
+                                // Sort the list
+                                // Prioritize active orgs
+                                .sort((a, b) => Number(b.status === 'active') - Number(a.status === 'active'))
+                                // Prioritize those with this acronym
+                                .sort((a, b) => Number(b.acronyms.includes(params.term)) - Number(a.acronyms.includes(params.term)))
+                                // Prioritize previously used entries
+                                .sort((a, b) => Number(getValue(rorPrefix, b['id'].replace(rorIdStem,'')).name != null) - Number(getValue(rorPrefix, a['id'].replace(rorIdStem,'')).name != null))
+                                .map(
+                                    function(x) {
+                                        return {
+                                            text: x.name +", " + x.id.replace(rorIdStem,'') + ', ' + x.acronyms,
+                                            id: x.id
+                                        }
+                                    })
+                        };
+                    }
+                }
+            });
+          //Add a tab stop and key handling to allow the clear button to be selected via tab/enter
+          const observer = new MutationObserver((mutationList, observer) => {
+            var button = $('#' + selectId).parent().find('.select2-selection__clear');
+            console.log("BL : " + button.length);
+            button.attr("tabindex","0");
+            button.on('keydown',function(e) {
+              if(e.which == 13) {
+                $('#' + selectId).val(null).trigger('change');
+              }
+            });
+          });
+
+          observer.observe($('#' + selectId).parent()[0], {
+            childList: true,
+            subtree: true }
+          );
+
+            // If the input has a value already, format it the same way as if it
+            // were a new selection
+            var id = $(rorInput).val();
+            if (id.startsWith(rorIdStem)) {
+                id = id.substring(rorIdStem.length);
+                $.ajax({
+                    type: "GET",
+                    url: rorRetrievalUrl + "/" + id,
+                    dataType: 'json',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    success: function(ror, status) {
+                        var name = ror.name;
+                        //Display the name and id number in the selection menu
+                        var text = name + ", " + ror.id.replace(rorIdStem,'') +', ' + ror.acronyms;
+                        var newOption = new Option(text, id, true, true);
+                        $('#' + selectId).append(newOption).trigger('change');
+                    },
+                    failure: function(jqXHR, textStatus, errorThrown) {
+                        if (jqXHR.status != 404) {
+                            console.error("The following error occurred: " + textStatus, errorThrown);
+                        }
+                    }
+                });
+            } else {
+                // If the initial value is not in ROR, just display it as is
+                var newOption = new Option(id, id, true, true);
+                newOption.altNames = ['No ROR Entry'];
+                $('#' + selectId).append(newOption).trigger('change');
+            }
+            // Could start with the selection menu open
+            // $("#" + selectId).select2('open');
+            // When a selection is made, set the value of the hidden input field
+            $('#' + selectId).on('select2:select', function(e) {
+                var data = e.params.data;
+                // For entries from ROR, the id and text are different
+                //For plain text entries (legacy or if tags are allowed), they are the same
+                if (data.id != data.text) {
+                    // we want just the ror url
+                    $("input[data-ror='" + num + "']").val(data.id);
+                } else {
+                    // Tags are allowed, so just enter the text as is
+                    $("input[data-ror='" + num + "']").val(data.id);
+                }
+            });
+            // When a selection is cleared, clear the hidden input
+            $('#' + selectId).on('select2:clear', function(e) {
+                $("input[data-ror='" + num + "']").attr('value', '');
+            });
+            //When the field is selected via keyboard, move the focus and cursor to the new input
+            $('#' + selectId).on('select2:open', function(e) {
+              $(".select2-search__field").focus()
+              $(".select2-search__field").attr("id",selectId + "_input")
+              document.getElementById(selectId + "_input").select();
+
+            });
+        }
+    });
+}
