@@ -1,4 +1,3 @@
-console.log("related_datasets.js..");
 var rorSelector = "span[data-cvoc-protocol='related-dataset-id']";
 var rorInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
 var rorRetrievalUrl = "/api/search";
@@ -12,23 +11,27 @@ $(document).ready(function() {
     updateRorInputs();
 });
 
+// This function handles display of related datasets on the dataset page
 function expandRors() {
     // Check each selected element
     $(rorSelector).each(function() {
         var rorElement = this;
         // If it hasn't already been processed
         if (!$(rorElement).hasClass('expanded')) {
-          //Child field case - if non-managed display, the string before this is name (affiliation) and we need to remove the duplicate affiliation string
-          //This is true for Dataverse author field - may not be true elsewhere - tbd
-          let prev = $(rorElement)[0].previousSibling;
-          if(prev !== undefined) {
-          let val = $(rorElement)[0].previousSibling.nodeValue;
-            if(val !== null) {
-              $(rorElement)[0].previousSibling.data = val.substring(0,val.indexOf('('));
+        /*
+            //Child field case - if non-managed display, the string before this is name (affiliation) and we need to remove the duplicate affiliation string
+            //This is true for Dataverse author field - may not be true elsewhere - tbd
+            let prev = $(rorElement)[0].previousSibling;
+            if(prev !== undefined) {
+                let val = $(rorElement)[0].previousSibling.nodeValue;
+                if(val !== null) {
+                    $(rorElement)[0].previousSibling.data = val.substring(0,val.indexOf('('));
+                }
             }
-          }
+
             // Mark it as processed
             $(rorElement).addClass('expanded');
+
             var id = rorElement.textContent;
             if (!id.startsWith(rorIdStem)) {
                 $(rorElement).html(getRorDisplayHtml(id, null, ['No ROR Entry'], false, true));
@@ -66,6 +69,7 @@ function expandRors() {
                         }
                     });
                 }
+             */
             }
         }
     });
