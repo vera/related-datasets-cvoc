@@ -94,13 +94,13 @@ function updateRorInputs() {
     // For each input element within rorInputSelector elements
     $(rorInputSelector).each(function() {
         var rorInput = this;
-        if (!rorInput.hasAttribute('data-ror')) {
+        if (!rorInput.hasAttribute('data-related-dataset-id')) {
             // Random identifier
             let num = Math.floor(Math.random() * 100000000000);
-            // Hide the actual input and give it a data-ror number so we can
+            // Hide the actual input and give it a data-related-dataset-id number so we can
             // find it
-            $(rorInput).hide();
-            $(rorInput).attr('data-ror', num);
+            //$(rorInput).hide();
+            $(rorInput).attr('data-related-dataset-id', num);
             // Todo: if not displayed, wait until it is to then create the
             // select 2 with a non-zero width
             // Add a select2 element to allow search and provide a list of
@@ -241,15 +241,15 @@ function updateRorInputs() {
                 //For plain text entries (legacy or if tags are allowed), they are the same
                 if (data.id != data.text) {
                     // we want just the ror url
-                    $("input[data-ror='" + num + "']").val(data.id);
+                    $("input[data-related-dataset-id='" + num + "']").val(data.id);
                 } else {
                     // Tags are allowed, so just enter the text as is
-                    $("input[data-ror='" + num + "']").val(data.id);
+                    $("input[data-related-dataset-id='" + num + "']").val(data.id);
                 }
             });
             // When a selection is cleared, clear the hidden input
             $('#' + selectId).on('select2:clear', function(e) {
-                $("input[data-ror='" + num + "']").attr('value', '');
+                $("input[data-related-dataset-id='" + num + "']").attr('value', '');
             });
             //When the field is selected via keyboard, move the focus and cursor to the new input
             $('#' + selectId).on('select2:open', function(e) {
