@@ -41,7 +41,33 @@ function displayRelatedDatasets() {
         }
     });
     
-    // TODO replace dataset ID with title
+    // The related datasets are inside the table cell as pairs of spans (consisting of dataset ID and relation type) separated by <br>s
+    // Convert this to a <ul><li>...</li>...</ul> structure instead
+    var td = document.querySelector(relatedDatasetsSelector);
+    if(td != null) {
+        var ul = document.createElement('ul');
+        var spans = td.querySelectorAll('span');
+        var spanGroups = {};
+        spans.forEach(span => {
+            var index = span.getAttribute('data-cvoc-index');
+            if (!spanGroups[index]) {
+                spanGroups[index] = [];
+            }
+            spanGroups[index].push(span);
+        });
+        Object.values(spanGroups).forEach(group => {
+            var li = document.createElement('li');
+            group.forEach(span => li.appendChild(span));
+            if (group.length === 2) {
+                li.insertBefore(document.createTextNode(' '), li.childNodes[1]);
+            }
+            ul.appendChild(li);
+        });
+        td.innerHTML = '';
+        td.appendChild(ul);
+    }
+    
+    // Replace dataset IDs with title
     $(relatedDatasetIdSelector).each(function() {
         var rorElement = this;
         if (!$(rorElement).hasClass('expanded')) {
@@ -51,7 +77,7 @@ function displayRelatedDatasets() {
             if (!id.startsWith("perma:")) { // TODO or other protocols
                 $(rorElement).html(getRorDisplayHtml(id));
             } else {
-                //Check for cached entry
+                // Check for cached entry
                 let value = getValue(id);
                 if(value !=null) {
                     $(rorElement).html(getRorDisplayHtml(value));
@@ -83,32 +109,6 @@ function displayRelatedDatasets() {
             }
         }
     });
-    
-    // The related datasets are inside the table cell as pairs of spans (consisting of dataset ID and relation type) separated by <br>s
-    // Convert this to a <ul><li>...</li>...</ul> structure instead
-    var td = document.querySelector(relatedDatasetsSelector);
-    if(td != null) {
-        var ul = document.createElement('ul');
-        var spans = td.querySelectorAll('span');
-        var spanGroups = {};
-        spans.forEach(span => {
-            var index = span.getAttribute('data-cvoc-index');
-            if (!spanGroups[index]) {
-                spanGroups[index] = [];
-            }
-            spanGroups[index].push(span);
-        });
-        Object.values(spanGroups).forEach(group => {
-            var li = document.createElement('li');
-            group.forEach(span => li.appendChild(span));
-            if (group.length === 2) {
-                li.insertBefore(document.createTextNode(' '), li.childNodes[1]);
-            }
-            ul.appendChild(li);
-        });
-        td.innerHTML = '';
-        td.appendChild(ul);
-    }
 }
 
 function getRorDisplayHtml(name) {
