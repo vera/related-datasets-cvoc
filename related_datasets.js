@@ -17,8 +17,7 @@ function expandRors() {
     $(rorSelector).each(function() {
         var rorElement = this;
         // If it hasn't already been processed
-        if (!$(rorElement).hasClass('expanded')) {
-        /*
+        /*if (!$(rorElement).hasClass('expanded')) {
             //Child field case - if non-managed display, the string before this is name (affiliation) and we need to remove the duplicate affiliation string
             //This is true for Dataverse author field - may not be true elsewhere - tbd
             let prev = $(rorElement)[0].previousSibling;
@@ -69,9 +68,8 @@ function expandRors() {
                         }
                     });
                 }
-             */
             }
-        }
+        }*/
     });
 }
 
