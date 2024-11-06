@@ -1,7 +1,7 @@
 console.log("related_datasets.js..");
 var rorSelector = "span[data-cvoc-protocol='related-dataset-id']";
 var rorInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
-var rorRetrievalUrl = "https://api.ror.org/organizations";
+var rorRetrievalUrl = "/api/search";
 var rorIdStem = "https://ror.org/";
 var rorPrefix = "ror";
 //Max chars that displays well for a child field
@@ -143,10 +143,10 @@ function updateRorInputs() {
                 language: {
                     searching: function(params) {
                         // Change this to be appropriate for your application
-                        return 'Search by name or acronym…';
+                        return 'Search for dataset…';
                     }
                 },
-                placeholder: rorInput.hasAttribute("data-cvoc-placeholder") ? $(rorInput).attr('data-cvoc-placeholder') : "Select a research organization",
+                placeholder: rorInput.hasAttribute("data-cvoc-placeholder") ? $(rorInput).attr('data-cvoc-placeholder') : "Select a related dataset…",
                 minimumInputLength: 3,
                 allowClear: true,
                 ajax: {
@@ -158,7 +158,8 @@ function updateRorInputs() {
                             term = "";
                         }
                         var query = {
-                            query: term,
+                            q: term,
+                            type: 'dataset',
                         }
                         return query;
                     },
@@ -182,8 +183,8 @@ function updateRorInputs() {
                                 .map(
                                     function(x) {
                                         return {
-                                            text: x.name +", " + x.id.replace(rorIdStem,'') + ', ' + x.acronyms,
-                                            id: x.id
+                                            text: x.name +" ("+ x.url +")",
+                                            id: x.global_id
                                         }
                                     })
                         };
