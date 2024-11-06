@@ -12,7 +12,7 @@
  * **********************
  * related-dataset-id-modal: the modal for the dialog box
  * related-dataset-id-modal-title: the dialog box title
- * author-search-box: field in the dialog where search term can be entered
+ * related-dataset-id-search-box: field in the dialog where search term can be entered
  * related-dataset-id-search-results: location where the query results will be displayed
  * DOM Classes
  * ***********
@@ -41,7 +41,7 @@ $(document).ready(function() {
               '<h5 id="related-dataset-id-modal-title" class="modal-title">Search for Dataset</h5>' + 
             '</div>' + 
             '<div class="modal-body">' + 
-              '<input id="author-search-box" class="form-control" accesskey="s" type="text">' + 
+              '<input id="related-dataset-id-search-box" class="form-control" accesskey="s" type="text">' + 
               '</div>' +
               '<table id="related-dataset-id-search-results" class="table"><tbody/></table>' + 
             '</div>' + 
@@ -58,16 +58,11 @@ $(document).ready(function() {
     });
 
     // To minimize the load on the lookup service, we opted for an explicit enter to launch a query
-    document.getElementById('author-search-box').addEventListener('keyup', function(e) {
-      // Only if Enter key is pressed
-      if (e.key === 'Enter') {
-        // Get string from searchBox ...
-        let str = this.value;
-        // ... and launch query ...
-        authorsQuery(this.value);
-        // .. and prevent key to be added to the searchBox
-        e.preventDefault();
-      }
+    document.getElementById('related-dataset-id-search-box').addEventListener('input', function(e) {
+      // Get string from searchBox ...
+      let str = this.value;
+      // ... and launch query
+      datasetsQuery(this.value);
     });
   }
 
@@ -88,7 +83,7 @@ $(document).ready(function() {
       // ... with search button ...
       wrapper.innerHTML = 
         '<button class="btn btn-default btn-sm bootstrap-button-tooltip compound-field-btn" type="button" title="Search for dataset" ' +
-          'data-toggle="modal" data-target="#related-dataset-id-"modal" data-covoc-element-id="' + datasetIdInput.id + '">' +
+          'data-toggle="modal" data-target="#related-dataset-id-modal" data-covoc-element-id="' + datasetIdInput.id + '">' +
           '<span class="glyphicon glyphicon-search no-text"></span>'
         '</button>';
       // ... and the input field ...
@@ -107,7 +102,7 @@ var page_size = 10; // Number of results that will be displayed on a single page
  *  - str (String): text to search for
  */
 
-function authorsQuery(str) {
+function datasetsQuery(str) {
   if (!start) {
     start = 0;
   }
@@ -121,7 +116,7 @@ function authorsQuery(str) {
     // Iterate over results
     res.data.items.forEach((item) => {
       // Get ID of target input element
-      let id = document.getElementById('author-search-box').getAttribute('data-covoc-element-id');
+      let id = document.getElementById('related-dataset-id-search-box').getAttribute('data-covoc-element-id');
       // Add a table row for the doc
       table.innerHTML += 
       '<tr title="' + doc.name + '">' +
