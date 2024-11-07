@@ -141,23 +141,28 @@ function createInputForRelatedDatasets() {
     // For each related dataset ID input element
     $(relatedDatasetIdInputSelector).each(function() {
         var relatedDatasetIdInput = this;
-        if (!rorInput.hasAttribute('data-related-dataset-id')) {
+        if (!relatedDatasetIdInput.hasAttribute('data-related-dataset-id')) {
             // Random identifier
             let num = Math.floor(Math.random() * 100000000000);
             // Hide the actual input and give it a data-related-dataset-id number so we can
             // find it
-            //$(rorInput).hide();
-            $(rorInput).attr('data-related-dataset-id', num);
+            //$(relatedDatasetIdInput).hide();
+            $(relatedDatasetIdInput).attr('data-related-dataset-id', num);
+            
+            // Increase width of parent div (dataset IDs are usually long and the input should be full width)
+            $(relatedDatasetIdInput).parentNode.classList.remove('col-sm-6');
+            $(relatedDatasetIdInput).parentNode.classList.add('col-sm-12');
+            
             // Todo: if not displayed, wait until it is to then create the
             // select 2 with a non-zero width
             // Add a select2 element to allow search and provide a list of
             // choices
             var selectId = "rorAddSelect_" + num;
-            $(rorInput).after(
+            $(relatedDatasetIdInput).after(
                 '<select id=' + selectId + ' class="form-control add-resource select2" tabindex="0" >');
             $("#" + selectId).select2({
                 theme: "classic",
-                tags: $(rorInput).attr('data-cvoc-allowfreetext'),
+                tags: $(relatedDatasetIdInput).attr('data-cvoc-allowfreetext'),
                 delay: 500,
                 templateResult: function(item) {
                     // No need to template the searching text
@@ -193,7 +198,7 @@ function createInputForRelatedDatasets() {
                         return 'Searching for dataset…';
                     }
                 },
-                placeholder: rorInput.hasAttribute("data-cvoc-placeholder") ? $(rorInput).attr('data-cvoc-placeholder') : "Select a related dataset…",
+                placeholder: relatedDatasetIdInput.hasAttribute("data-cvoc-placeholder") ? $(relatedDatasetIdInput).attr('data-cvoc-placeholder') : "Select a related dataset…",
                 minimumInputLength: 3,
                 allowClear: true,
                 ajax: {
@@ -250,7 +255,7 @@ function createInputForRelatedDatasets() {
 
             // If the input has a value already, format it the same way as if it
             // were a new selection
-            var id = $(rorInput).val();
+            var id = $(relatedDatasetIdInput).val();
             if (id.startsWith(rorIdStem)) {
                 id = id.substring(rorIdStem.length);
                 $.ajax({
