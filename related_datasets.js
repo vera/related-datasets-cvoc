@@ -148,7 +148,7 @@ function displayRelatedDatasets() {
                             // Only consider relationships to the currently viewed dataset
                             // TODO in a future version of the search, it might be possible to return only those
                             if(relationship.relatedDatasetIdentifier.value == persistentUrl) {
-                                relatedDatasetsList.append($('<li></li>').append(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url), ' ', relationship.relatedDatasetRelationType.value, ' this dataset ', $('<i></i>').addClass('text-muted').append('(This relationship has been automatically inferred and has not been confirmed by this dataset\'s owner.)')));
+                                relatedDatasetsList.append($('<li></li>').append(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url), ' ', relationship.relatedDatasetRelationType.value, ' this dataset ', $('<i></i>').addClass('text-muted').append($('<span></span>').addClass('glyphicon glyphicon-exclamation-sign'), ' (This relationship has been automatically inferred and has not been confirmed by this dataset\'s owner.)')));
                             }
                         });
                     });
