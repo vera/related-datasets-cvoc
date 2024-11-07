@@ -121,7 +121,9 @@ function displayRelatedDatasets() {
 
     // Get incoming relationships and display them as inferred, non-confirmed relationships
     var citation = $(".citation a");
-    if(citation.length > 0) {
+    var relatedDatasetsList = $("ul#relatedDatasetsList");
+    if(citation.length > 0 && !relatedDatasetsList.hasClass('inferred')) {
+        relatedDatasetsList.addClass('inferred');
         // Get persistent URL of currently viewed dataset
         var persistentUrl = $(".citation a")[0].href;
         // TODO use cache
@@ -131,16 +133,23 @@ function displayRelatedDatasets() {
             data: {
                 'q': 'relatedDatasetIdentifier:"' + persistentUrl + '"',
                 'type': 'dataset',
+                'metadata_fields': 'relatedDatasetsV2:*',
             },
             dataType: 'json',
             headers: {
                 'Accept': 'application/json',
             },
             success: function(res) {
-                // Verify that the search found the correct dataset
                 if(res.status == 'OK' && res.data.total_count > 0) {
                     res.data.items.forEach(function(dataset) {
-                        $("ul#relatedDatasetsList").append($('<li></li>').append('is related to ', getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url)));
+                        // To find the relation type, we walk through the list of relationships
+                        dataset.metadataBlocks.relatedDatasetsV2.fields[0].value.forEach(function(relationship) {
+                            // Only consider relationships to the currently viewed dataset
+                            // TODO in a future version of the search, it might be possible to return only those
+                            if(relationship.relatedDatasetIdentifier.value == persistentUrl) {
+                                relatedDatasetsList.append($('<li></li>').append(relationship.relatedDatasetRelationType.value, ' ', getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url)));
+                            }
+                        });
                     });
                 }
             },
