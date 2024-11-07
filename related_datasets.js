@@ -62,7 +62,7 @@ function displayRelatedDatasets() {
             li.appendChild(document.createTextNode('This dataset '));
             group.forEach(span => li.appendChild(span));
             if (group.length === 2) {
-                li.insertBefore(document.createTextNode(' '), li.childNodes[1]);
+                li.insertBefore(document.createTextNode(' '), li.childNodes[2]);
             }
             ul.appendChild(li);
         });
