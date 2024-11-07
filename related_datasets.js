@@ -44,6 +44,7 @@ function displayRelatedDatasets() {
         $(td).addClass('converted-to-list');
 
         var ul = document.createElement('ul');
+        ul.setAttribute('id', 'relatedDatasetsList');
         var spans = td.querySelectorAll('span');
         var spanGroups = {};
         spans.forEach(span => {
@@ -114,6 +115,40 @@ function displayRelatedDatasets() {
             }
         }
     });
+
+    // Get incoming relationships and display them as inferred, non-confirmed relationships
+    // TODO use cache
+    $.ajax({
+        type: "GET",
+        url: datasetRetrievalUrl,
+        data: {
+            'q': 'relatedDatasetIdentifier:"' + url + '"',
+            'type': 'dataset',
+        },
+        dataType: 'json',
+        headers: {
+            'Accept': 'application/json',
+        },
+        success: function(res) {
+            // Verify that the search found the correct dataset
+            if(res.status == 'OK' && res.data.total_count > 0) {
+                res.data.items.forEach(function(dataset) {
+                    var li = document.createElement('li');
+                    var relationType = $('<span></span>').append('is related to ');
+                    li.appendChild(relationType);
+                    li.appendChild(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url));
+                    $("ul#relatedDatasetsList").appendChild(li);
+                });
+            }
+        },
+        failure: function(jqXHR, textStatus, errorThrown) {
+            // Generic logging - don't need to do anything if 404 (leave
+            // display as is)
+            if (jqXHR.status != 404) {
+                console.error("The following error occurred: " + textStatus, errorThrown);
+            }
+        }
+    });
 }
 
 // source: https://stackoverflow.com/a/43467144
@@ -149,11 +184,11 @@ function createInputForRelatedDatasets() {
             // find it
             $(relatedDatasetIdInput).hide();
             $(relatedDatasetIdInput).attr('data-related-dataset-id', num);
-            
+
             // Increase width of parent div (dataset IDs are usually long and the input should be full width)
             relatedDatasetIdInput.parentNode.classList.remove('col-sm-6');
             relatedDatasetIdInput.parentNode.classList.add('col-sm-12');
-            
+
             // Todo: if not displayed, wait until it is to then create the
             // select 2 with a non-zero width
             // Add a select2 element to allow search and provide a list of
