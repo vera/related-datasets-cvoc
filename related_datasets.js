@@ -140,7 +140,7 @@ function displayRelatedDatasets() {
                 // Verify that the search found the correct dataset
                 if(res.status == 'OK' && res.data.total_count > 0) {
                     res.data.items.forEach(function(dataset) {
-                        $("ul#relatedDatasetsList").append('<li>is related to ' + getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url) + '</li>');
+                        $("ul#relatedDatasetsList").append($('<li></li>').append('is related to ', getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url)));
                     });
                 }
             },
