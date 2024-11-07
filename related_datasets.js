@@ -69,45 +69,51 @@ function displayRelatedDatasets() {
         td.appendChild(ul);
     }
     
-    // Replace dataset IDs with title
+    // Replace dataset IDs with text
     $(relatedDatasetIdSelector).each(function() {
         var rorElement = this;
         if (!$(rorElement).hasClass('expanded')) {
             $(rorElement).addClass('expanded');
 
             var id = rorElement.textContent;
-            if (!id.startsWith("perma:")) { // TODO or other protocols
-                $(rorElement).html(getRorDisplayHtml(id));
+
+            // Check for cached entry
+            let value = getValue(id);
+            if(value !=null) {
+                $(rorElement).html(getRorDisplayHtml(value, id));
             } else {
-                // Check for cached entry
-                let value = getValue(id);
-                if(value !=null) {
-                    $(rorElement).html(getRorDisplayHtml(value, id));
-                } else {
-                    // Try it as a local dataset PID (could validate that it has the right form or can just let the GET fail)
-                    $.ajax({
-                        type: "GET",
-                        url: datasetRetrievalUrl + "?persistentId=" + id,
-                        dataType: 'json',
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                        success: function(res) {
-                            // Assume the first field in the citation block is the dataset title
-                            var datasetTitle = res.data.latestVersion.metadataBlocks.citation.fields[0].value;
-                            $(rorElement).html(getRorDisplayHtml(datasetTitle, datasetId));
+                // Try it as a local dataset PID (could validate that it has the right form or can just let the GET fail)
+                $.ajax({
+                    type: "GET",
+                    url: datasetAutocompleteUrl,
+                    data: {
+                        'q': 'persistentUrl:"' + id + '"',
+                        'type': 'dataset',
+                    },
+                    dataType: 'json',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                    success: function(res) {
+                        // Verify that the search found the correct dataset
+                        if(res.status == 'OK' && res.data.total_count > 0 && res.data.items[0].url == id) {
+                            var datasetText = res.data.items[0].citation;
+                            $(rorElement).html(getRorDisplayHtml(datasetText, id));
                             //Store values in localStorage to avoid repeating calls
-                            storeValue(id, datasetTitle);
-                        },
-                        failure: function(jqXHR, textStatus, errorThrown) {
-                            // Generic logging - don't need to do anything if 404 (leave
-                            // display as is)
-                            if (jqXHR.status != 404) {
-                                console.error("The following error occurred: " + textStatus, errorThrown);
-                            }
+                            storeValue(id, datasetText);
+                        } else {
+                            $(rorElement).html(getRorDisplayHtml(id));
                         }
-                    });
-                }
+                    },
+                    failure: function(jqXHR, textStatus, errorThrown) {
+                        // Generic logging - don't need to do anything if 404 (leave
+                        // display as is)
+                        if (jqXHR.status != 404) {
+                            console.error("The following error occurred: " + textStatus, errorThrown);
+                        }
+                        $(rorElement).html(getRorDisplayHtml(id));
+                    }
+                });
             }
         }
     });
@@ -212,7 +218,7 @@ function updateRorInputs() {
                                     function(x) {
                                         return {
                                             text: x.citation,
-                                            id: x.global_id
+                                            id: x.url
                                         }
                                     })
                         };
