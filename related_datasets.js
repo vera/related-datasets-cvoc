@@ -1,3 +1,6 @@
+// This script is based on the ror.js script by Jim Myers (@qqmyers)
+// https://github.com/gdcc/dataverse-external-vocab-support/blob/b5390e769815ce01fb59e3ac94220d28e565914d/scripts/ror.js
+
 var relatedDatasetIdSelector = "span[data-cvoc-protocol='related-dataset-id']";
 var relatedDatasetRelationTypeSelector = "span[data-cvoc-protocol='related-dataset-relation-type']";
 var relatedDatasetsSelector = "tr#metadata_relatedDatasetV2 td";
@@ -117,40 +120,43 @@ function displayRelatedDatasets() {
     });
 
     // Get incoming relationships and display them as inferred, non-confirmed relationships
-    // TODO use cache
-    // Get persistent URL of currently viewed dataset
-    var persistentUrl = $(".citation a")[0].href;
-    $.ajax({
-        type: "GET",
-        url: datasetRetrievalUrl,
-        data: {
-            'q': 'relatedDatasetIdentifier:"' + persistentUrl + '"',
-            'type': 'dataset',
-        },
-        dataType: 'json',
-        headers: {
-            'Accept': 'application/json',
-        },
-        success: function(res) {
-            // Verify that the search found the correct dataset
-            if(res.status == 'OK' && res.data.total_count > 0) {
-                res.data.items.forEach(function(dataset) {
-                    var li = document.createElement('li');
-                    var relationType = $('<span></span>').append('is related to ');
-                    li.appendChild(relationType);
-                    li.appendChild(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url));
-                    $("ul#relatedDatasetsList").appendChild(li);
-                });
+    var citation = $(".citation a");
+    if(citation.length > 0) {
+        // Get persistent URL of currently viewed dataset
+        var persistentUrl = $(".citation a")[0].href;
+        // TODO use cache
+        $.ajax({
+            type: "GET",
+            url: datasetRetrievalUrl,
+            data: {
+                'q': 'relatedDatasetIdentifier:"' + persistentUrl + '"',
+                'type': 'dataset',
+            },
+            dataType: 'json',
+            headers: {
+                'Accept': 'application/json',
+            },
+            success: function(res) {
+                // Verify that the search found the correct dataset
+                if(res.status == 'OK' && res.data.total_count > 0) {
+                    res.data.items.forEach(function(dataset) {
+                        var li = document.createElement('li');
+                        var relationType = $('<span></span>').append('is related to ');
+                        li.appendChild(relationType);
+                        li.appendChild(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url));
+                        $("ul#relatedDatasetsList").appendChild(li);
+                    });
+                }
+            },
+            failure: function(jqXHR, textStatus, errorThrown) {
+                // Generic logging - don't need to do anything if 404 (leave
+                // display as is)
+                if (jqXHR.status != 404) {
+                    console.error("The following error occurred: " + textStatus, errorThrown);
+                }
             }
-        },
-        failure: function(jqXHR, textStatus, errorThrown) {
-            // Generic logging - don't need to do anything if 404 (leave
-            // display as is)
-            if (jqXHR.status != 404) {
-                console.error("The following error occurred: " + textStatus, errorThrown);
-            }
-        }
-    });
+        });
+    }
 }
 
 // source: https://stackoverflow.com/a/43467144
