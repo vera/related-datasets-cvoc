@@ -176,22 +176,12 @@ function createInputForRelatedDatasets() {
                     return $result;
                 },
                 templateSelection: function(item) {
-                    // For a selection, format as in display mode
-                    //Find/remove the id number
-                    var name = item.text;
-                    var pos = item.text.search(/, [a-z0-9]{9}/);
-                    if (pos >= 0) {
-                        name = name.substr(0, pos);
-                        var idnum = item.text.substr(pos+2);
-                        var altNames=[];
-                        pos=idnum.indexOf(', ');
-                        if(pos>0) {
-                            altNames = idnum.substr(pos+2).split(',');
-                            idnum=idnum.substr(0,pos);
-                        }
-                        return getDisplayHtmlForRelatedDataset(name);
+                    if(item.text != item.id) {
+                        // Only for datasets local to this Dataverse instance we have display text in addition to the ID
+                        return getDisplayHtmlForRelatedDataset(item.text, item.id);
+                    } else {
+                        return getDisplayHtmlForRelatedDataset(item.id);
                     }
-                    return getDisplayHtmlForRelatedDataset(name);
                 },
                 language: {
                     searching: function(params) {
