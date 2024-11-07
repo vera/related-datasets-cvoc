@@ -141,7 +141,8 @@ function displayRelatedDatasets() {
                 if(res.status == 'OK' && res.data.total_count > 0) {
                     res.data.items.forEach(function(dataset) {
                         var li = document.createElement('li');
-                        var relationType = $('<span></span>').append('is related to ');
+                        var relationType = document.createElement('span');
+                        relationType.innerHTML = 'is related to ';
                         li.appendChild(relationType);
                         li.appendChild(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url));
                         $("ul#relatedDatasetsList").appendChild(li);
