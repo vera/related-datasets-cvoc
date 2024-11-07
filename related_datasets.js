@@ -1,18 +1,14 @@
 var relatedDatasetIdSelector = "span[data-cvoc-protocol='related-dataset-id']";
 var relatedDatasetRelationTypeSelector = "span[data-cvoc-protocol='related-dataset-relation-type']";
 var relatedDatasetsSelector = "tr#metadata_relatedDatasetV2 td";
-var rorInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
-var datasetAutocompleteUrl = "/api/search";
-var datasetRetrievalUrl = "/api/datasets/:persistentId";
+var relatedDatasetIdInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
+var datasetRetrievalUrl = "/api/search";
 var rorIdStem = "https://ror.org/";
 var rorPrefix = "ror";
 
-//Max chars that displays well for a child field
-var rorMaxLength = 31;
-
 $(document).ready(function() {
     displayRelatedDatasets();
-    updateRorInputs();
+    createInputForRelatedDatasets();
 });
 
 // This function handles display of related datasets on the dataset page
@@ -80,12 +76,12 @@ function displayRelatedDatasets() {
             // Check for cached entry
             let value = getValue(url);
             if(value !=null) {
-                $(rorElement).html(getRorDisplayHtml(value, url));
+                $(rorElement).html(getDisplayHtmlForRelatedDataset(value, url));
             } else {
                 // Try it as a local dataset PID (could validate that it has the right form or can just let the GET fail)
                 $.ajax({
                     type: "GET",
-                    url: datasetAutocompleteUrl,
+                    url: datasetRetrievalUrl,
                     data: {
                         'q': 'persistentUrl:"' + url + '"',
                         'type': 'dataset',
@@ -98,11 +94,11 @@ function displayRelatedDatasets() {
                         // Verify that the search found the correct dataset
                         if(res.status == 'OK' && res.data.total_count > 0 && res.data.items[0].url == url) {
                             var datasetText = res.data.items[0].citation;
-                            $(rorElement).html(getRorDisplayHtml(datasetText, url));
+                            $(rorElement).html(getDisplayHtmlForRelatedDataset(datasetText, url));
                             //Store values in localStorage to avoid repeating calls
                             storeValue(url, datasetText);
                         } else {
-                            $(rorElement).html(getRorDisplayHtml(url));
+                            $(rorElement).html(getDisplayHtmlForRelatedDataset(url));
                         }
                     },
                     failure: function(jqXHR, textStatus, errorThrown) {
@@ -111,7 +107,7 @@ function displayRelatedDatasets() {
                         if (jqXHR.status != 404) {
                             console.error("The following error occurred: " + textStatus, errorThrown);
                         }
-                        $(rorElement).html(getRorDisplayHtml(url));
+                        $(rorElement).html(getDisplayHtmlForRelatedDataset(url));
                     }
                 });
             }
@@ -130,7 +126,7 @@ function isValidHttpUrl(string) {
     return url.protocol === "http:" || url.protocol === "https:";
 }
 
-function getRorDisplayHtml(name, url) {
+function getDisplayHtmlForRelatedDataset(name, url) {
     if(url != null) {
         // for datasets local to this Dataverse instance, we have the URL and the dataset name
         name = '<a href="' + url + '" target="_blank" rel="nofollow" >'+ name +'</a>';
@@ -141,10 +137,10 @@ function getRorDisplayHtml(name, url) {
     return $('<span></span>').append(name);
 }
 
-function updateRorInputs() {
-    // For each input element within rorInputSelector elements
-    $(rorInputSelector).each(function() {
-        var rorInput = this;
+function createInputForRelatedDatasets() {
+    // For each related dataset ID input element
+    $(relatedDatasetIdInputSelector).each(function() {
+        var relatedDatasetIdInput = this;
         if (!rorInput.hasAttribute('data-related-dataset-id')) {
             // Random identifier
             let num = Math.floor(Math.random() * 100000000000);
@@ -187,9 +183,9 @@ function updateRorInputs() {
                             altNames = idnum.substr(pos+2).split(',');
                             idnum=idnum.substr(0,pos);
                         }
-                        return getRorDisplayHtml(name);
+                        return getDisplayHtmlForRelatedDataset(name);
                     }
-                    return getRorDisplayHtml(name);
+                    return getDisplayHtmlForRelatedDataset(name);
                 },
                 language: {
                     searching: function(params) {
@@ -202,7 +198,7 @@ function updateRorInputs() {
                 allowClear: true,
                 ajax: {
                     // Use an ajax call to ROR to retrieve matching results
-                    url: datasetAutocompleteUrl,
+                    url: datasetRetrievalUrl,
                     data: function(params) {
                         term = params.term;
                         if (!term) {
