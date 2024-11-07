@@ -179,10 +179,10 @@ function isValidHttpUrl(string) {
 function getDisplayHtmlForRelatedDataset(name, url) {
     if(url != null) {
         // for datasets local to this Dataverse instance, we have the URL and the dataset name
-        name = '<a href="' + url + '" target="_blank" rel="nofollow" >'+ name +'</a>';
+        name = '<span class="glyphicon glyphicon-new-window"></span><a href="' + url + '" target="_blank" rel="nofollow" >'+ name +'</a>';
     } else if(isValidHttpUrl(name)) {
         // for external datasets, the entered identifier may also be a URL
-        name = '<a href="' + name + '" target="_blank" rel="nofollow" >'+ name +'</a>';
+        name = '<span class="glyphicon glyphicon-new-window"></span><a href="' + name + '" target="_blank" rel="nofollow" >'+ name +'</a>';
     }
     return $('<span></span>').append(name);
 }
