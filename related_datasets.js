@@ -59,7 +59,7 @@ function displayRelatedDatasets() {
         });
         Object.values(spanGroups).forEach(group => {
             var li = document.createElement('li');
-            li.innerHTML = 'This dataset ';
+            li.appendChild(document.createTextNode('This dataset '));
             group.forEach(span => li.appendChild(span));
             if (group.length === 2) {
                 li.insertBefore(document.createTextNode(' '), li.childNodes[1]);
@@ -148,7 +148,7 @@ function displayRelatedDatasets() {
                             // Only consider relationships to the currently viewed dataset
                             // TODO in a future version of the search, it might be possible to return only those
                             if(relationship.relatedDatasetIdentifier.value == persistentUrl) {
-                                relatedDatasetsList.append($('<li></li>').append(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url), ' ', relationship.relatedDatasetRelationType.value, ' this dataset'));
+                                relatedDatasetsList.append($('<li></li>').addClass('text-muted').append(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url), ' ', relationship.relatedDatasetRelationType.value, ' this dataset ', $('<i></i>').append('(This relationship has been automatically inferred and has not been confirmed by this dataset\'s owner.)')));
                             }
                         });
                     });
