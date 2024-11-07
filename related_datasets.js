@@ -150,8 +150,8 @@ function createInputForRelatedDatasets() {
             $(relatedDatasetIdInput).attr('data-related-dataset-id', num);
             
             // Increase width of parent div (dataset IDs are usually long and the input should be full width)
-            $(relatedDatasetIdInput).parentNode.classList.remove('col-sm-6');
-            $(relatedDatasetIdInput).parentNode.classList.add('col-sm-12');
+            relatedDatasetIdInput.parentNode.classList.remove('col-sm-6');
+            relatedDatasetIdInput.parentNode.classList.add('col-sm-12');
             
             // Todo: if not displayed, wait until it is to then create the
             // select 2 with a non-zero width
