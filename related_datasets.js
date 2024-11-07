@@ -118,11 +118,13 @@ function displayRelatedDatasets() {
 
     // Get incoming relationships and display them as inferred, non-confirmed relationships
     // TODO use cache
+    // Get persistent URL of currently viewed dataset
+    var persistentUrl = $(".citation a")[0].href;
     $.ajax({
         type: "GET",
         url: datasetRetrievalUrl,
         data: {
-            'q': 'relatedDatasetIdentifier:"' + url + '"',
+            'q': 'relatedDatasetIdentifier:"' + persistentUrl + '"',
             'type': 'dataset',
         },
         dataType: 'json',
