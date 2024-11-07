@@ -147,7 +147,7 @@ function createInputForRelatedDatasets() {
             let num = Math.floor(Math.random() * 100000000000);
             // Hide the actual input and give it a data-related-dataset-id number so we can
             // find it
-            //$(relatedDatasetIdInput).hide();
+            $(relatedDatasetIdInput).hide();
             $(relatedDatasetIdInput).attr('data-related-dataset-id', num);
             
             // Increase width of parent div (dataset IDs are usually long and the input should be full width)
