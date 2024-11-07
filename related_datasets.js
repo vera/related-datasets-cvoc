@@ -119,9 +119,24 @@ function displayRelatedDatasets() {
     });
 }
 
+// source: https://stackoverflow.com/a/43467144
+function isValidHttpUrl(string) {
+    var url;
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return false;  
+    }
+    return url.protocol === "http:" || url.protocol === "https:";
+}
+
 function getRorDisplayHtml(name, url) {
-    if (url != null) {
-      name =  '<a href="' + url + '" target="_blank" rel="nofollow" >'+ name +'</a>';
+    if(url != null) {
+        // for datasets local to this Dataverse instance, we have the URL and the dataset name
+        name = '<a href="' + url + '" target="_blank" rel="nofollow" >'+ name +'</a>';
+    } else if(isValidHttpUrl(name)) {
+        // for external datasets, the entered identifier may also be a URL
+        name = '<a href="' + name + '" target="_blank" rel="nofollow" >'+ name +'</a>';
     }
     return $('<span></span>').append(name);
 }
