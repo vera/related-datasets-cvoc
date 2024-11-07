@@ -141,10 +141,7 @@ function displayRelatedDatasets() {
                 if(res.status == 'OK' && res.data.total_count > 0) {
                     res.data.items.forEach(function(dataset) {
                         var li = document.createElement('li');
-                        var relationType = document.createElement('span');
-                        relationType.innerHTML = 'is related to ';
-                        li.appendChild(relationType);
-                        li.appendChild(getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url));
+                        li.innerHTML = 'is related to ' + getDisplayHtmlForRelatedDataset(dataset.citation, dataset.url);
                         $("ul#relatedDatasetsList").appendChild(li);
                     });
                 }
