@@ -75,19 +75,19 @@ function displayRelatedDatasets() {
         if (!$(rorElement).hasClass('expanded')) {
             $(rorElement).addClass('expanded');
 
-            var id = rorElement.textContent;
+            var url = rorElement.textContent;
 
             // Check for cached entry
-            let value = getValue(id);
+            let value = getValue(url);
             if(value !=null) {
-                $(rorElement).html(getRorDisplayHtml(value, id));
+                $(rorElement).html(getRorDisplayHtml(value, url));
             } else {
                 // Try it as a local dataset PID (could validate that it has the right form or can just let the GET fail)
                 $.ajax({
                     type: "GET",
                     url: datasetAutocompleteUrl,
                     data: {
-                        'q': 'persistentUrl:"' + id + '"',
+                        'q': 'persistentUrl:"' + url + '"',
                         'type': 'dataset',
                     },
                     dataType: 'json',
@@ -96,13 +96,13 @@ function displayRelatedDatasets() {
                     },
                     success: function(res) {
                         // Verify that the search found the correct dataset
-                        if(res.status == 'OK' && res.data.total_count > 0 && res.data.items[0].url == id) {
+                        if(res.status == 'OK' && res.data.total_count > 0 && res.data.items[0].url == url) {
                             var datasetText = res.data.items[0].citation;
-                            $(rorElement).html(getRorDisplayHtml(datasetText, id));
+                            $(rorElement).html(getRorDisplayHtml(datasetText, url));
                             //Store values in localStorage to avoid repeating calls
-                            storeValue(id, datasetText);
+                            storeValue(url, datasetText);
                         } else {
-                            $(rorElement).html(getRorDisplayHtml(id));
+                            $(rorElement).html(getRorDisplayHtml(url));
                         }
                     },
                     failure: function(jqXHR, textStatus, errorThrown) {
@@ -111,7 +111,7 @@ function displayRelatedDatasets() {
                         if (jqXHR.status != 404) {
                             console.error("The following error occurred: " + textStatus, errorThrown);
                         }
-                        $(rorElement).html(getRorDisplayHtml(id));
+                        $(rorElement).html(getRorDisplayHtml(url));
                     }
                 });
             }
@@ -119,14 +119,9 @@ function displayRelatedDatasets() {
     });
 }
 
-function getRorDisplayHtml(name, id) {
-    if (name.length >= rorMaxLength) {
-        // show the first characters of a long name
-        // return item.text.substring(0,25) + "…";
-        name=name.substring(0,rorMaxLength) + "…";
-    }
-    if (id != null) {
-      name =  '<a href="/dataset.xhtml?persistentId=' + id + '" target="_blank" rel="nofollow" >'+ name +'</a>';
+function getRorDisplayHtml(name, url) {
+    if (url != null) {
+      name =  '<a href="' + url + '" target="_blank" rel="nofollow" >'+ name +'</a>';
     }
     return $('<span></span>').append(name);
 }
