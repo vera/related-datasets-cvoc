@@ -78,7 +78,8 @@ function displayRelatedDatasets() {
             if(value !=null) {
                 $(rorElement).html(getDisplayHtmlForRelatedDataset(value, url));
             } else {
-                // Try it as a local dataset PID (could validate that it has the right form or can just let the GET fail)
+                // Try it as a local dataset PID
+                // TODO check first if it's actually a valid URL
                 $.ajax({
                     type: "GET",
                     url: datasetRetrievalUrl,
@@ -220,9 +221,6 @@ function createInputForRelatedDatasets() {
                         'Accept': 'application/json'
                     },
                     processResults: function(data, params) {
-                        //console.log("Data dump BEGIN");
-                        //console.log(data);
-                        //console.log("Data dump END");
                         return {
                             results: data['data']['items']
                                 .map(
@@ -236,79 +234,94 @@ function createInputForRelatedDatasets() {
                     }
                 }
             });
-          //Add a tab stop and key handling to allow the clear button to be selected via tab/enter
-          const observer = new MutationObserver((mutationList, observer) => {
-            var button = $('#' + selectId).parent().find('.select2-selection__clear');
-            console.log("BL : " + button.length);
-            button.attr("tabindex","0");
-            button.on('keydown',function(e) {
-              if(e.which == 13) {
-                $('#' + selectId).val(null).trigger('change');
-              }
-            });
-          });
 
-          observer.observe($('#' + selectId).parent()[0], {
-            childList: true,
-            subtree: true }
-          );
+            //Add a tab stop and key handling to allow the clear button to be selected via tab/enter
+            const observer = new MutationObserver((mutationList, observer) => {
+                var button = $('#' + selectId).parent().find('.select2-selection__clear');
+                button.attr("tabindex","0");
+                button.on('keydown',function(e) {
+                    if(e.which == 13) {
+                        $('#' + selectId).val(null).trigger('change');
+                    }
+                });
+            });
+
+            observer.observe($('#' + selectId).parent()[0], {
+                childList: true,
+                subtree: true
+            });
 
             // If the input has a value already, format it the same way as if it
             // were a new selection
             var id = $(relatedDatasetIdInput).val();
-            if (id.startsWith(rorIdStem)) {
-                id = id.substring(rorIdStem.length);
-                $.ajax({
-                    type: "GET",
-                    url: rorRetrievalUrl + "/" + id,
-                    dataType: 'json',
-                    headers: {
-                        'Accept': 'application/json'
-                    },
-                    success: function(ror, status) {
-                        var name = ror.name;
-                        //Display the name and id number in the selection menu
-                        var text = name + ", " + ror.id.replace(rorIdStem,'') +', ' + ror.acronyms;
-                        var newOption = new Option(text, id, true, true);
-                        $('#' + selectId).append(newOption).trigger('change');
-                    },
-                    failure: function(jqXHR, textStatus, errorThrown) {
-                        if (jqXHR.status != 404) {
-                            console.error("The following error occurred: " + textStatus, errorThrown);
-                        }
-                    }
-                });
-            } else {
-                // If the initial value is not in ROR, just display it as is
-                var newOption = new Option(id, id, true, true);
-                newOption.altNames = ['No ROR Entry'];
+            // TODO this duplicates some code from displayRelatedDatasets
+            let value = getValue(id);
+            if(value !=null) {
+                var newOption = new Option(value, id, true, true)
                 $('#' + selectId).append(newOption).trigger('change');
+            } else {
+                if(isValidHttpUrl(id)) {
+                    // To find out if the URL ID belongs to a dataset in this Dataverse instance,
+                    // just query for it
+                    $.ajax({
+                        type: "GET",
+                        url: datasetRetrievalUrl,
+                        data: {
+                            'q': 'persistentUrl:"' + id + '"',
+                            'type': 'dataset',
+                        },
+                        dataType: 'json',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                        success: function(res) {
+                            // Verify that the search found the correct dataset
+                            if(res.status == 'OK' && res.data.total_count > 0 && res.data.items[0].url == id) {
+                                var datasetText = res.data.items[0].citation;
+                                var newOption = new Option(datasetText, id, true, true)
+                                $('#' + selectId).append(newOption).trigger('change');
+                            } else {
+                                var newOption = new Option(id, id, true, true)
+                                $('#' + selectId).append(newOption).trigger('change');
+                            }
+                        },
+                        failure: function(jqXHR, textStatus, errorThrown) {
+                            // Generic logging - don't need to do anything if 404 (leave
+                            // display as is)
+                            if (jqXHR.status != 404) {
+                                console.error("The following error occurred: " + textStatus, errorThrown);
+                            }
+                            var newOption = new Option(id, id, true, true)
+                            $('#' + selectId).append(newOption).trigger('change');
+                        }
+                    });
+                } else {
+                    // If it's not a valid URL, it's definitely an external dataset,
+                    // so just display the text as it is
+                    var newOption = new Option(id, id, true, true)
+                    $('#' + selectId).append(newOption).trigger('change');
+                }
             }
+
             // Could start with the selection menu open
             // $("#" + selectId).select2('open');
+
             // When a selection is made, set the value of the hidden input field
             $('#' + selectId).on('select2:select', function(e) {
                 var data = e.params.data;
-                // For entries from ROR, the id and text are different
-                //For plain text entries (legacy or if tags are allowed), they are the same
-                if (data.id != data.text) {
-                    // we want just the ror url
-                    $("input[data-related-dataset-id='" + num + "']").val(data.id);
-                } else {
-                    // Tags are allowed, so just enter the text as is
-                    $("input[data-related-dataset-id='" + num + "']").val(data.id);
-                }
+                $("input[data-related-dataset-id='" + num + "']").val(data.id);
             });
+
             // When a selection is cleared, clear the hidden input
             $('#' + selectId).on('select2:clear', function(e) {
                 $("input[data-related-dataset-id='" + num + "']").attr('value', '');
             });
+
             //When the field is selected via keyboard, move the focus and cursor to the new input
             $('#' + selectId).on('select2:open', function(e) {
               $(".select2-search__field").focus()
               $(".select2-search__field").attr("id",selectId + "_input")
               document.getElementById(selectId + "_input").select();
-
             });
         }
     });
