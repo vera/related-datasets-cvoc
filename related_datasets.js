@@ -6,8 +6,6 @@ var relatedDatasetRelationTypeSelector = "span[data-cvoc-protocol='related-datas
 var relatedDatasetsSelector = "tr#metadata_relatedDatasetV2 td";
 var relatedDatasetIdInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
 var datasetRetrievalUrl = "/api/search";
-var rorIdStem = "https://ror.org/";
-var rorPrefix = "ror";
 
 $(document).ready(function() {
     displayRelatedDatasets();
@@ -20,23 +18,23 @@ function displayRelatedDatasets() {
     // (both datasetId and relationType are presented on the page twice, first as plain text, then inside a span)
     // Here, we remove the first occurence
     $(relatedDatasetIdSelector).each(function() {
-        var rorElement = this;
-        if (!$(rorElement).hasClass('deduplicated')) {
-            let prev = $(rorElement)[0].previousSibling;
+        var relatedDatasetIdElement = this;
+        if (!$(relatedDatasetIdElement).hasClass('deduplicated')) {
+            let prev = $(relatedDatasetIdElement)[0].previousSibling;
             if(prev !== undefined) {
-                $(rorElement)[0].previousSibling.data = "";
+                $(relatedDatasetIdElement)[0].previousSibling.data = "";
             }
-            $(rorElement).addClass('deduplicated');
+            $(relatedDatasetIdElement).addClass('deduplicated');
         }
     });
     $(relatedDatasetRelationTypeSelector).each(function() {
-        var rorElement = this;
-        if (!$(rorElement).hasClass('deduplicated')) {
-            let prev = $(rorElement)[0].previousSibling;
+        var relatedDatasetRelationTypeElement = this;
+        if (!$(relatedDatasetRelationTypeElement).hasClass('deduplicated')) {
+            let prev = $(relatedDatasetRelationTypeElement)[0].previousSibling;
             if(prev !== undefined) {
-                $(rorElement)[0].previousSibling.data = "";
+                $(relatedDatasetRelationTypeElement)[0].previousSibling.data = "";
             }
-            $(rorElement).addClass('deduplicated');
+            $(relatedDatasetRelationTypeElement).addClass('deduplicated');
         }
     });
     
@@ -72,16 +70,16 @@ function displayRelatedDatasets() {
     
     // Replace dataset IDs with text
     $(relatedDatasetIdSelector).each(function() {
-        var rorElement = this;
-        if (!$(rorElement).hasClass('expanded')) {
-            $(rorElement).addClass('expanded');
+        var relatedDatasetIdElement = this;
+        if (!$(relatedDatasetIdElement).hasClass('expanded')) {
+            $(relatedDatasetIdElement).addClass('expanded');
 
-            var url = rorElement.textContent;
+            var url = relatedDatasetIdElement.textContent;
 
             // Check for cached entry
             let value = getValue(url);
             if(value !=null) {
-                $(rorElement).html(getDisplayHtmlForRelatedDataset(value, url));
+                $(relatedDatasetIdElement).html(getDisplayHtmlForRelatedDataset(value, url));
             } else {
                 // Try it as a local dataset PID
                 // TODO check first if it's actually a valid URL
@@ -100,11 +98,11 @@ function displayRelatedDatasets() {
                         // Verify that the search found the correct dataset
                         if(res.status == 'OK' && res.data.total_count > 0 && res.data.items[0].url == url) {
                             var datasetText = res.data.items[0].citation;
-                            $(rorElement).html(getDisplayHtmlForRelatedDataset(datasetText, url));
+                            $(relatedDatasetIdElement).html(getDisplayHtmlForRelatedDataset(datasetText, url));
                             //Store values in localStorage to avoid repeating calls
                             storeValue(url, datasetText);
                         } else {
-                            $(rorElement).html(getDisplayHtmlForRelatedDataset(url));
+                            $(relatedDatasetIdElement).html(getDisplayHtmlForRelatedDataset(url));
                         }
                     },
                     failure: function(jqXHR, textStatus, errorThrown) {
@@ -113,7 +111,7 @@ function displayRelatedDatasets() {
                         if (jqXHR.status != 404) {
                             console.error("The following error occurred: " + textStatus, errorThrown);
                         }
-                        $(rorElement).html(getDisplayHtmlForRelatedDataset(url));
+                        $(relatedDatasetIdElement).html(getDisplayHtmlForRelatedDataset(url));
                     }
                 });
             }
@@ -171,7 +169,7 @@ function isValidHttpUrl(string) {
     try {
         url = new URL(string);
     } catch (_) {
-        return false;  
+        return false;
     }
     return url.protocol === "http:" || url.protocol === "https:";
 }
@@ -207,7 +205,7 @@ function createInputForRelatedDatasets() {
             // select 2 with a non-zero width
             // Add a select2 element to allow search and provide a list of
             // choices
-            var selectId = "rorAddSelect_" + num;
+            var selectId = "relatedDatasetIdAddSelect_" + num;
             $(relatedDatasetIdInput).after(
                 '<select id=' + selectId + ' class="form-control add-resource select2" tabindex="0" >');
             $("#" + selectId).select2({
@@ -242,7 +240,7 @@ function createInputForRelatedDatasets() {
                 minimumInputLength: 3,
                 allowClear: true,
                 ajax: {
-                    // Use an ajax call to ROR to retrieve matching results
+                    // Use an ajax call to retrieve matching results
                     url: datasetRetrievalUrl,
                     data: function(params) {
                         term = params.term;
