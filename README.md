@@ -45,3 +45,7 @@ Further features are planned, but not yet developed. See [open issues](https://g
    `
    curl $DATAVERSE_HOST/api/admin/settings/:CVocConf -X PUT --upload-file related_datasets_config.json
    `
+
+## Credit
+
+The external controlled vocabulary scripts in this repo have been based on [ror.js](https://github.com/gdcc/dataverse-external-vocab-support/blob/b5390e769815ce01fb59e3ac94220d28e565914d/scripts/ror.js) and [cvocutils.js](https://github.com/gdcc/dataverse-external-vocab-support/blob/c05446499ac4c912f5d3af798514561b2e27c3ab/scripts/cvocutils.js) provided in https://github.com/gdcc/dataverse-external-vocab-support.
