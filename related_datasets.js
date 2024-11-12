@@ -175,7 +175,7 @@ function isValidHttpUrl(string) {
 }
 
 function getDisplayHtmlForRelatedDataset(name, url) {
-    if(url != null) {
+    if(url != null && isValidHttpUrl(url)) {
         // for datasets local to this Dataverse instance, we have the URL and the dataset name
         name = '<a href="' + url + '" target="_blank" rel="nofollow"><span class="glyphicon glyphicon-new-window"></span> '+ name +'</a>';
     } else if(isValidHttpUrl(name)) {
