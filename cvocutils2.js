@@ -1,4 +1,6 @@
-//Common Methods - used in more than one script
+// These utility functions are based on
+// https://github.com/gdcc/dataverse-external-vocab-support/blob/c05446499ac4c912f5d3af798514561b2e27c3ab/scripts/cvocutils.js
+// (markMatch2 is unchanged, but storeValueById and getValueById have been adapted)
 
 // Put the text in a result that matches the term in a span with class
 // select2-rendered__match that can be styled (e.g. bold)
@@ -27,7 +29,7 @@ function markMatch2(text, term) {
     return $result;
 }
 
-function storeValue(id, value) {
+function storeValueById(id, value) {
     try {
         if(localStorage.getItem(id)==null) {
             // Store the most recent 1000 values across all scripts
@@ -42,7 +44,7 @@ function storeValue(id, value) {
     }
 }
 
-function getValue(id) {
+function getValueById(id) {
     try {
         return localStorage.getItem(id);
     } catch (e) {

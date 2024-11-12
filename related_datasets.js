@@ -77,7 +77,7 @@ function displayRelatedDatasets() {
             var url = relatedDatasetIdElement.textContent;
 
             // Check for cached entry
-            let value = getValue(url);
+            let value = getValueById(url);
             if(value !=null) {
                 $(relatedDatasetIdElement).html(getDisplayHtmlForRelatedDataset(value, url));
             } else {
@@ -100,7 +100,7 @@ function displayRelatedDatasets() {
                             var datasetText = res.data.items[0].citation;
                             $(relatedDatasetIdElement).html(getDisplayHtmlForRelatedDataset(datasetText, url));
                             //Store values in localStorage to avoid repeating calls
-                            storeValue(url, datasetText);
+                            storeValueById(url, datasetText);
                         } else {
                             $(relatedDatasetIdElement).html(getDisplayHtmlForRelatedDataset(url));
                         }
@@ -292,7 +292,7 @@ function createInputForRelatedDatasets() {
             // were a new selection
             var id = $(relatedDatasetIdInput).val();
             // TODO this duplicates some code from displayRelatedDatasets
-            let value = getValue(id);
+            let value = getValueById(id);
             if(value !=null) {
                 var newOption = new Option(value, id, true, true)
                 $('#' + selectId).append(newOption).trigger('change');
