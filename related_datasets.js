@@ -367,15 +367,15 @@ function createInputForRelatedDatasets() {
     // For each related dataset relation type input element
     $(relatedDatasetRelationTypeInputSelector).each(function() {
         var relatedDatasetRelationTypeInput = this;
-        if(!relatedDatasetRelationTypeInput.hasClass('prettied')) {
-            relatedDatasetRelationTypeInput.addClass('prettied');
+        if(!$(relatedDatasetRelationTypeInput).hasClass('prettied')) {
+            $(relatedDatasetRelationTypeInput).addClass('prettied');
 
             // Increase width of parent div
             relatedDatasetRelationTypeInput.parentNode.classList.remove('col-sm-6');
             relatedDatasetRelationTypeInput.parentNode.classList.add('col-sm-12');
-            
+
             // Add text for prettier input
-            relatedDatasetRelationTypeInput.append($('<span></span>').append("This dataset…"));
+            $(relatedDatasetRelationTypeInput).append($('<span></span>').append("This dataset…"));
         }
     });
 }
