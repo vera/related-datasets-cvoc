@@ -5,6 +5,7 @@ var relatedDatasetIdSelector = "span[data-cvoc-protocol='related-dataset-id']";
 var relatedDatasetRelationTypeSelector = "span[data-cvoc-protocol='related-dataset-relation-type']";
 var relatedDatasetsSelector = "tr#metadata_relatedDatasetV2 td";
 var relatedDatasetIdInputSelector = "input[data-cvoc-protocol='related-dataset-id']";
+var relatedDatasetRelationTypeInputSelector = "div[data-cvoc-managed-field='relatedDatasetRelationType']";
 var datasetRetrievalUrl = "/api/search";
 
 $(document).ready(function() {
@@ -360,6 +361,21 @@ function createInputForRelatedDatasets() {
               $(".select2-search__field").attr("id",selectId + "_input")
               document.getElementById(selectId + "_input").select();
             });
+        }
+    });
+
+    // For each related dataset relation type input element
+    $(relatedDatasetRelationTypeInputSelector).each(function() {
+        var relatedDatasetRelationTypeInput = this;
+        if(!relatedDatasetRelationTypeInput.hasClass('prettied')) {
+            relatedDatasetRelationTypeInput.addClass('prettied');
+
+            // Increase width of parent div
+            relatedDatasetRelationTypeInput.parentNode.classList.remove('col-sm-6');
+            relatedDatasetRelationTypeInput.parentNode.classList.add('col-sm-12');
+            
+            // Add text for prettier input
+            relatedDatasetRelationTypeInput.append($('<span></span>').append("This dataset…"));
         }
     });
 }
