@@ -375,7 +375,7 @@ function createInputForRelatedDatasets() {
             relatedDatasetRelationTypeInput.parentNode.classList.add('col-sm-12');
 
             // Add text for prettier input
-            $(relatedDatasetRelationTypeInput).append($('<span></span>').append("This dataset…"));
+            $(relatedDatasetRelationTypeInput).prepend($('<span></span>').append("This dataset…"));
         }
     });
 }
