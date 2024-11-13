@@ -11,22 +11,29 @@ This prototype can be installed in any Dataverse instance (see instructions belo
    * *Dataset ID type:* The type of the identifier (e.g., "URL", "DOI").
    * *Relationship type:* The type of relationship (e.g., "supplements," "continues") following DataCite relationship types.
 
+![image](https://github.com/user-attachments/assets/7c481318-d169-4ab3-a210-9d02961bc45a)
+
 * **User interface:**
    * ✅ *Dataset creation form:* Offer autocomplete for related datasets within the same Dataverse.
    * ✅ *Dataset page:* Display related datasets on the dataset page with clickable links.
+
+* ✅ **Support for related external datasets:** Allows datasets to be linked not only within Dataverse but also to resources in other repositories or data sources such as Zenodo, DataCite, and others using external URIs.
+
+![image](https://github.com/user-attachments/assets/9073dd2d-eb69-46eb-8aaa-c0fa4f957543)
+
+![image](https://github.com/user-attachments/assets/fe4f0410-9362-4085-bf83-d8bc1d26d940)
+
+![image](https://github.com/user-attachments/assets/77dc88f8-1e03-4966-b40a-79a4f3639de0)
  
 * **Automatic inverse and transitive relationships:**
-   * (✅) Relationships apply inversely or transitively without requiring duplicate entries.
-   * *Examples:*
-      * (✅) When a relationship is created in one direction, the corresponding inverse relationship is recorded for the other dataset (e.g., "is part of" vs. "has part").
-      * If Dataset A is related to Dataset B, and Dataset B is related to Dataset C, a transitive relationship would allow Dataset A to be related to Dataset C automatically.
+   * (✅) When a relationship is created in one direction, the corresponding reverse relationship is recorded for the other dataset.
    * ✅ To ensure clarity for users, so they can easily see whether a relationship was explicitly added or inferred by the system, automatically applied relationships are clearly marked in the UI.
+
+![image](https://github.com/user-attachments/assets/9bcd24e6-bf35-4d37-a0ad-0b0b26dd741e)
 
 * (✅) **API integration:** Related datasets are accessible via the API.
 
 * (✅) **Search integration:** Integrates relationship data into the search logic to allow users to find datasets based on their relationships.
-
-* ✅ **Support for related external datasets:** Allows datasets to be linked via external URIs, allowing datasets to be linked not only within Dataverse but also to resources in other repositories or data sources such as Zenodo, DataCite, and others.
 
 Further features are planned, but not yet developed. See [open issues](https://github.com/vera/related-datasets-cvoc/issues).
 
