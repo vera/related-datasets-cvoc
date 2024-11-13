@@ -1,10 +1,10 @@
 #metadataBlock	name	dataverseAlias	displayName	blockURI
 	relatedDatasetsV2		Improved related datasets (prototype)	
 #datasetField	name	title	description	watermark	fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI	
-	relatedDatasetV2	Related datasets			none	0		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		relatedDatasetsV2	
-	relatedDatasetRelationType	Relationship between this dataset and the related dataset			text	1		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	relatedDatasetV2	relatedDatasetsV2	http://datacite.org/schema/kernel-4/simpleTypes#relationType
-	relatedDatasetIDType	Type of the identifier of the related dataset			text	2		TRUE	TRUE	FALSE	FALSE	TRUE	FALSE	relatedDatasetV2	relatedDatasetsV2	http://purl.org/spar/datacite/ResourceIdentifierScheme
-	relatedDatasetID	Identifier of the related dataset			text	3		TRUE	FALSE	FALSE	FALSE	TRUE	TRUE	relatedDatasetV2	relatedDatasetsV2	http://purl.org/spar/datacite/ResourceIdentifier
+	relatedDatasetV2	Related Datasets			none	0		FALSE	FALSE	TRUE	FALSE	TRUE	FALSE		relatedDatasetsV2	
+	relatedDatasetRelationType	Relationship Between This Dataset and the Related Dataset			text	1		TRUE	TRUE	FALSE	TRUE	TRUE	FALSE	relatedDatasetV2	relatedDatasetsV2	http://datacite.org/schema/kernel-4/simpleTypes#relationType
+	relatedDatasetIDType	Type of the Identifier of the Related Dataset			text	2		TRUE	TRUE	FALSE	FALSE	TRUE	FALSE	relatedDatasetV2	relatedDatasetsV2	http://purl.org/spar/datacite/ResourceIdentifierScheme
+	relatedDatasetID	Identifier of the Related Dataset			text	3		TRUE	FALSE	FALSE	FALSE	TRUE	TRUE	relatedDatasetV2	relatedDatasetsV2	http://purl.org/spar/datacite/ResourceIdentifier
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder
 	relatedDatasetRelationType	is cited by		0
 	relatedDatasetRelationType	cites		1
