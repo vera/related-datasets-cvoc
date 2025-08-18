@@ -22,7 +22,7 @@ function displayRelatedDatasets() {
         var relatedDatasetIdElement = this;
         if (!$(relatedDatasetIdElement).hasClass('deduplicated')) {
             let prev = $(relatedDatasetIdElement)[0].previousSibling;
-            if(prev !== undefined) {
+            if(prev) {
                 $(relatedDatasetIdElement)[0].previousSibling.data = "";
             }
             $(relatedDatasetIdElement).addClass('deduplicated');
@@ -32,7 +32,7 @@ function displayRelatedDatasets() {
         var relatedDatasetRelationTypeElement = this;
         if (!$(relatedDatasetRelationTypeElement).hasClass('deduplicated')) {
             let prev = $(relatedDatasetRelationTypeElement)[0].previousSibling;
-            if(prev !== undefined) {
+            if(prev) {
                 $(relatedDatasetRelationTypeElement)[0].previousSibling.data = "";
             }
             $(relatedDatasetRelationTypeElement).addClass('deduplicated');
